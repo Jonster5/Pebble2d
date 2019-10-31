@@ -1,0 +1,22 @@
+{
+  "name": "canvaslib",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jonster5/Pebble2d.git"
+  },
+  "author": "CodePebble",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jonster5/Pebble2d/issues"
+  },
+  "homepage": "https://github.com/Jonster5/Pebble2d#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
