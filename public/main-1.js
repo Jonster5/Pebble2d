@@ -2,6 +2,7 @@ let canvas = new Pebble.CanvasObject(document.body, 400, 400);
 let stage = new Pebble.Stage(canvas.width, canvas.height);
 let assets = new Pebble.AssetLoader();
 
+
 let colors = [
     "#FFABAB", "#FFDAAB", "#DDFFAB", "#ABE4FF", "#D9ABFF"
 
@@ -9,7 +10,7 @@ let colors = [
 
 let balls = [];
 
-for (let i = 0; i < 1; i++) {
+for (let i = 0; i < 10; i++) {
     //Create a ball
     let ball = Pebble.Circle(32, colors[Pebble.randomInt(0, 4)]);
     //Set the ball to a random color
@@ -48,78 +49,16 @@ function update() {
     });
 }
 
-const times = [];
-let FPS;
-
-function refreshLoop() {
-    window.requestAnimationFrame(() => {
-        const now = performance.now();
-        while (times.length > 0 && times[0] <= now - 1000) {
-            times.shift();
-        }
-        times.push(now);
-        FPS = times.length;
-        console.log(FPS);
-        refreshLoop();
-    });
-}
-
-// refreshLoop();
-
-
-
-
-
-
-let previous = 0;
-let lag = 0;
+Pebble.interpolationData.fps = 30;
 
 function Animate(timestamp) {
     requestAnimationFrame(Animate);
-    let fps = 60;
-    let frameDuration = 1000 / fps;
 
-    if (!timestamp) timestamp = 0;
-    let elapsed = timestamp - previous;
+    Pebble.render(canvas.domElement, stage, true, Pebble.getLagOffset(timestamp, update));
+    console.log(Pebble.frameData.FPS);
+    // update();
+    // Pebble.render(canvas.domElement, stage, false);
 
-    if (elapsed > 1000) elapsed = frameDuration;
-
-    lag += elapsed;
-
-    function capturePreviousPositions(stage) {
-        //Loop through all the children of the stage
-        stage.children.forEach(sprite => {
-            setPreviousPosition(sprite);
-        });
-
-        function setPreviousPosition(sprite) {
-            //Set the sprite’s `previousX` and `previousY`
-            sprite.previousX = sprite.x;
-            sprite.previousY = sprite.y;
-            //Loop through all the sprite's children
-            if (sprite.children && sprite.children.length > 0) {
-                sprite.children.forEach(child => {
-                    //Recursively call `setPosition` on each sprite
-                    setPreviousPosition(child);
-                });
-            }
-        }
-    }
-
-    while (lag >= frameDuration) {
-        capturePreviousPositions(stage);
-        update();
-        lag -= frameDuration;
-    }
-
-    let lagOffset = lag / frameDuration;
-
-    previous = timestamp;
-
-    Pebble.render(canvas.domElement, stage, true, lagOffset);
-
-
-    // Pebble.render(canvas.domElement, stage, true, Pebble.getLagOffset(300, timestamp, update));
 }
 
 Animate();

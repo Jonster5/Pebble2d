@@ -525,17 +525,39 @@ Pebble.render = function(canvas, stage, interpolated = false, lagOffset) {
         }
     }
 }
-Pebble.getLagOffset = function(fps = 0, ts, update) {
-    let timestamp = ts;
+Pebble.interpolationData = {
+    _fps: 60,
+    previous: 0,
+    lag: 0
+};
+Pebble.frameData = {
+    times: [],
+    FPS: 0
+}
 
+function refreshLoop() {
+    window.requestAnimationFrame(() => {
+        const now = performance.now();
+        while (Pebble.frameData.times.length > 0 && Pebble.frameData.times[0] <= now - 1000) {
+            Pebble.frameData.times.shift();
+        }
+        Pebble.frameData.times.push(now);
+        Pebble.frameData.FPS = Pebble.frameData.times.length;
+        refreshLoop();
+    });
+}
+refreshLoop();
+
+Pebble.getLagOffset = function(timestamp, func) {
+    let fps = Pebble.interpolationData._fps;
+    let frameDuration = 1000 / fps;
 
     if (!timestamp) timestamp = 0;
-    let elapsed = timestamp - previous;
-
+    let elapsed = timestamp - Pebble.interpolationData.previous;
 
     if (elapsed > 1000) elapsed = frameDuration;
 
-    lag += elapsed;
+    Pebble.interpolationData.lag += elapsed;
 
     function capturePreviousPositions(stage) {
         //Loop through all the children of the stage
@@ -557,17 +579,22 @@ Pebble.getLagOffset = function(fps = 0, ts, update) {
         }
     }
 
-    while (lag >= frameDuration) {
+    while (Pebble.interpolationData.lag >= frameDuration) {
         capturePreviousPositions(stage);
-        update();
-        lag -= frameDuration;
-
+        func();
+        Pebble.interpolationData._fps -= 1;
+        if (Pebble.interpolationData._fps < 1) Pebble.interpolationData._fps = 1;
+        Pebble.interpolationData.lag -= frameDuration;
     }
-    // console.log(lag);
-    previous = timestamp;
+    if (Pebble.interpolationData.lag < frameDuration) Pebble.interpolationData._fps += 1;
+    // console.log(Math.round(Pebble.interpolationData._fps));
 
-    return lag / frameDuration;
+    Pebble.interpolationData.previous = timestamp;
+
+    return Pebble.interpolationData.lag / frameDuration;
 }
+
+
 Pebble.Rectangle = function(width = 32, height = 32, fillStyle = "gray", strokeStyle = "none", lineWidth = 0, x = 0, y = 0) {
     return new RectangleCanvasObject(width, height, fillStyle, strokeStyle, lineWidth, x, y);
 }
