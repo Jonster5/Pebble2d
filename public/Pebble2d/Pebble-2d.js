@@ -402,14 +402,16 @@ Pebble.CanvasObject = class {
 
 Pebble.Stage = Pebble.DisplayObject;
 
-Pebble.render = function(canvas, stage, interpolated = false, lagOffset = 0) {
+Pebble.render = function(canvas, stage, interpolated = false, lagOffset) {
     let ctx = canvas.ctx;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     stage.children.forEach(sprite => {
         if (interpolated) displaySpriteI(sprite);
-        else displaySprite(sprite);
+        else {
+            displaySprite(sprite);
+        }
     });
 
     function displaySpriteI(sprite) {
@@ -523,24 +525,49 @@ Pebble.render = function(canvas, stage, interpolated = false, lagOffset = 0) {
         }
     }
 }
+Pebble.getLagOffset = function(fps = 0, ts, update) {
+    let timestamp = ts;
 
-Pebble.capturePreviousPositions = function(stage) {
-    stage.children.forEach(sprite => {
-        setPreviousPosition(sprite);
-    });
 
-    function setPreviousPosition(sprite) {
-        sprite.previousX = sprite.x;
-        sprite.previousY = sprite.y;
+    if (!timestamp) timestamp = 0;
+    let elapsed = timestamp - previous;
 
-        if (sprite.children && sprite.children.length > 0) {
-            sprite.children.forEach(child => {
-                setPreviousPosition(child);
-            });
+
+    if (elapsed > 1000) elapsed = frameDuration;
+
+    lag += elapsed;
+
+    function capturePreviousPositions(stage) {
+        //Loop through all the children of the stage
+        stage.children.forEach(sprite => {
+            setPreviousPosition(sprite);
+        });
+
+        function setPreviousPosition(sprite) {
+            //Set the sprite’s `previousX` and `previousY`
+            sprite.previousX = sprite.x;
+            sprite.previousY = sprite.y;
+            //Loop through all the sprite's children
+            if (sprite.children && sprite.children.length > 0) {
+                sprite.children.forEach(child => {
+                    //Recursively call `setPosition` on each sprite
+                    setPreviousPosition(child);
+                });
+            }
         }
     }
-}
 
+    while (lag >= frameDuration) {
+        capturePreviousPositions(stage);
+        update();
+        lag -= frameDuration;
+
+    }
+    // console.log(lag);
+    previous = timestamp;
+
+    return lag / frameDuration;
+}
 Pebble.Rectangle = function(width = 32, height = 32, fillStyle = "gray", strokeStyle = "none", lineWidth = 0, x = 0, y = 0) {
     return new RectangleCanvasObject(width, height, fillStyle, strokeStyle, lineWidth, x, y);
 }

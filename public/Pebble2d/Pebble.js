@@ -12,6 +12,3 @@ class Pebble {
         return parseFloat(Math.min(min + (Math.random() * (max - min)), max).toFixed(precision));
     }
 }
-Object.assign(Pebble, {
-    fps: 60
-});
