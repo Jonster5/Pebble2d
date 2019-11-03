@@ -1,5 +1,5 @@
 if (typeof Pebble.DisplayObject === 'undefined' || Pebble.DisplayObject === null) {
-    throw new Error('You must have Pebble-2d installed before you can use collisions');
+    throw new Error('You must have Pebble-2d installed before you can use Pebble-collisions');
 }
 Pebble.contain = function(sprite, bounds, bounce = false, extra = undefined) {
 

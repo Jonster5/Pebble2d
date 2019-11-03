@@ -55,7 +55,7 @@ function Animate(timestamp) {
     requestAnimationFrame(Animate);
 
     Pebble.render(canvas.domElement, stage, true, Pebble.getLagOffset(timestamp, update));
-    console.log(Pebble.frameData.FPS);
+    console.log(space.isDown);
     // update();
     // Pebble.render(canvas.domElement, stage, false);
 
