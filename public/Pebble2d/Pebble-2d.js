@@ -383,7 +383,7 @@ Pebble.DisplayObject = class {
     }
 }
 
-Pebble.CanvasObject = class {
+Pebble.Canvas = class {
     constructor(
         domElement = document.body,
         width = 400,
@@ -546,7 +546,18 @@ Pebble.render = function(canvas, stage, interpolated = false, lagOffset) {
 Pebble.interpolationData = {
     _fps: 60,
     previous: 0,
-    lag: 0
+    lag: 0,
+	get FPS() {
+		return this._fps;
+	},
+	set FPS(value) {
+		if (typeof(value) !== "number") {
+			console.error('Must be a number');
+			return;
+		} else {
+			this._fps = value;
+		}
+	}
 };
 Pebble.frameData = {
     times: [],
