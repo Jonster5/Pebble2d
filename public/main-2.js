@@ -1,4 +1,4 @@
-let canvas = new Pebble.CanvasObject(document.body, 400, 400);
+let canvas = new Pebble.Canvas(document.body, 400, 400);
 let stage = new Pebble.Stage(canvas.width, canvas.height);
 let assets = new Pebble.AssetLoader();
 
@@ -14,7 +14,7 @@ function setup() {
 
     stage.add(message1, message2);
 
-    pointer = Pebble.Pointer(canvas.domElement, 0.4);
+    pointer = Pebble.Pointer(canvas.domElement, 1);
 
     pointer.press = () => console.log("pointer was pressed");
     pointer.release = () => console.log("pointer was released");

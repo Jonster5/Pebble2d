@@ -270,6 +270,12 @@ Pebble.DisplayObject = class {
     remove(...spritesToRemove) {
         spritesToRemove.forEach(sprite => this.removeChild(sprite));
     }
+	addArray(spritesToAdd = []) {
+        spritesToAdd.forEach(sprite => this.addChild(sprite));
+    }
+	removeArray(spritesToRemove = []) {
+        spritesToRemove.forEach(sprite => this.removeChild(sprite));
+    }
 
     /* Advanced features */
 
@@ -551,12 +557,7 @@ Pebble.interpolationData = {
 		return this._fps;
 	},
 	set FPS(value) {
-		if (typeof(value) !== "number") {
-			console.error('Must be a number');
-			return;
-		} else {
-			this._fps = value;
-		}
+		this._fps = value;
 	}
 };
 Pebble.frameData = {
@@ -578,15 +579,15 @@ function refreshLoop() {
 refreshLoop();
 
 Pebble.getLagOffset = function(timestamp, func) {
-    let fps = Pebble.interpolationData._fps;
+    let fps = this.interpolationData._fps;
     let frameDuration = 1000 / fps;
 
     if (!timestamp) timestamp = 0;
-    let elapsed = timestamp - Pebble.interpolationData.previous;
+    let elapsed = timestamp - this.interpolationData.previous;
 
     if (elapsed > 1000) elapsed = frameDuration;
 
-    Pebble.interpolationData.lag += elapsed;
+    this.interpolationData.lag += elapsed;
 
     function capturePreviousPositions(stage) {
         //Loop through all the children of the stage
@@ -608,19 +609,16 @@ Pebble.getLagOffset = function(timestamp, func) {
         }
     }
 
-    while (Pebble.interpolationData.lag >= frameDuration) {
+    while (this.interpolationData.lag >= frameDuration) {
         capturePreviousPositions(stage);
         func();
-        Pebble.interpolationData._fps -= 1;
-        if (Pebble.interpolationData._fps < 1) Pebble.interpolationData._fps = 1;
-        Pebble.interpolationData.lag -= frameDuration;
+
+        this.interpolationData.lag -= frameDuration;
     }
-    if (Pebble.interpolationData.lag < frameDuration) Pebble.interpolationData._fps += 1;
-    // console.log(Math.round(Pebble.interpolationData._fps));
 
-    Pebble.interpolationData.previous = timestamp;
+    this.interpolationData.previous = timestamp;
 
-    return Pebble.interpolationData.lag / frameDuration;
+    return this.interpolationData.lag / frameDuration;
 }
 
 
