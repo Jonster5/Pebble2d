@@ -1,22 +1,47 @@
-let canvas = new Pebble.CanvasObject(document.body, 400, 400);
+let canvas = new Pebble.Canvas(document.body, 600, 600);
 let stage = new Pebble.Stage(canvas.width, canvas.height);
 let assets = new Pebble.AssetLoader();
 
-
 let colors = [
     "#FFABAB", "#FFDAAB", "#DDFFAB", "#ABE4FF", "#D9ABFF"
-
 ];
+
+let space = Pebble.Keyboard(32);
+space.press = () => {
+    stage.remove(balls[0]);
+    balls.shift();
+};
+
+let pointer = Pebble.Pointer();
+pointer.press = () => createBall(pointer.x, pointer.y);
+
+let fps = Pebble.Text("FPS: ", "12px sans-serif", "black", 16, 16);
+stage.add(fps);
 
 let balls = [];
 
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 2; i++) {
     //Create a ball
+
+    createBall();
+}
+
+function createBall(
+    x = Pebble.randomInt(0, canvas.width - 32),
+    y = Pebble.randomInt(0, canvas.height - 32)
+) {
+
     let ball = Pebble.Circle(32, colors[Pebble.randomInt(0, 4)]);
+    // let ball = Pebble.Rectangle(32, 32, colors[Pebble.randomInt(0, 4)]);
+
     //Set the ball to a random color
     //Set a random position and veloctiy
-    ball.x = Pebble.randomInt(0, canvas.width - ball.diameter);
-    ball.y = Pebble.randomInt(0, canvas.height - ball.diameter);
+
+    ball.x = x;
+    ball.y = y;
+    // ball.x = Pebble.randomInt(0, canvas.width - ball.width);
+    // ball.y = Pebble.randomInt(0, canvas.height - ball.width);
+
     ball.vx = Pebble.randomInt(-10, 10);
     ball.vy = Pebble.randomInt(-10, 10);
     //Physics properties
@@ -47,6 +72,20 @@ function update() {
             ball.frictionX = 1;
         }
     });
+
+    balls.forEach(ball => {
+        let index = balls.indexOf(ball);
+        let ba = [];
+        if (index == 0) ba = balls.slice(1, ball.length);
+        if (index == balls.length) ba = balls.slice(0, balls.length - 1);
+        else {
+            let foo = balls.slice(0, index);
+            let foo2 = balls.slice(index + 1, balls.length);
+            ba = foo.concat(foo2);
+        }
+        Pebble.hit(ball, ba, true, true);
+    });
+    fps.content = "FPS: " + Pebble.frameData.FPS;
 }
 
 Pebble.interpolationData.fps = 30;
@@ -55,10 +94,8 @@ function Animate(timestamp) {
     requestAnimationFrame(Animate);
 
     Pebble.render(canvas.domElement, stage, true, Pebble.getLagOffset(timestamp, update));
-    console.log(space.isDown);
     // update();
-    // Pebble.render(canvas.domElement, stage, false);
-
+    // Pebble.render(canvas, stage, false);
 }
 
 Animate();

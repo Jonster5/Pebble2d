@@ -53,7 +53,7 @@ Pebble.Keyboard = function(keyCode, eventObj = window) {
     return key;
 }
 
-Pebble.Pointer = function(element, scale = 1) {
+Pebble.Pointer = function(element = document.body, scale = 1) {
     let pointer = {
         element,
         scale,
