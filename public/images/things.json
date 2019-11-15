@@ -1,0 +1,36 @@
+{"frames": {
+
+"css3-logo-8724075274-seeklogo.com.png":
+{
+	"frame": {"x":0,"y":0,"w":214,"h":300},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":214,"h":300},
+	"sourceSize": {"w":214,"h":300}
+},
+"dir_bg_1.png":
+{
+	"frame": {"x":214,"y":0,"w":308,"h":250},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":308,"h":250},
+	"sourceSize": {"w":308,"h":250}
+},
+"slidemations_GC9_icon.ico":
+{
+	"frame": {"x":522,"y":0,"w":16,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
+	"sourceSize": {"w":16,"h":16}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "things.png",
+	"format": "RGBA8888",
+	"size": {"w":538,"h":300},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:99c76cb1f1014199449cbbbb4fb7a741:26845de0fafda30ccee6da17163ae1ea:a7ffc03d719097afff7952cb633fb6e1$"
+}
+}

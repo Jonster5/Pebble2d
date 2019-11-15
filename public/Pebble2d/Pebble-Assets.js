@@ -206,7 +206,7 @@ Pebble.AssetLoader = class {
         //Create a sound sprite and alert the `loadHandler`
         //when the sound file has loaded.
         //
-        let sound = makeSound(source, loadHandler);
+        let sound = Pebble.Sound(source, loadHandler);
 
         //Get the sound file name.
         sound.name = source;

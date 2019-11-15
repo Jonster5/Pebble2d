@@ -1,4 +1,4 @@
-Pebble.Data = class {
+Pebble.DataLoader = class {
     constructor() {
         this.databases = [];
         this.openDatabases = [];
@@ -33,11 +33,11 @@ Pebble.Data = class {
         this.databases.splice(index, 1);
         return true;
     }
-    open(database = "", callback) {
+    open(database = "", callback = false) {
         let db = JSON.parse(window.localStorage.getItem(database));
         this.openDatabases.push(db);
         let index = this.openDatabases.indexOf(db);
-        callback(this.openDatabases[index].data);
+        if (callback) callback(this.openDatabases[index].data);
         return true;
     }
     close(database = "") {
