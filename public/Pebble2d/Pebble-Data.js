@@ -18,7 +18,10 @@ Pebble.DataLoader = class {
             }
         });
         if (good === true) {
-            let db = { id: name, data: {} };
+            let db = {
+                id: name,
+                db: {}
+            };
             this.databases.push(db);
             window.localStorage.setItem(name, JSON.stringify(db));
             return true;
@@ -37,7 +40,7 @@ Pebble.DataLoader = class {
         let db = JSON.parse(window.localStorage.getItem(database));
         this.openDatabases.push(db);
         let index = this.openDatabases.indexOf(db);
-        if (callback) callback(this.openDatabases[index].data);
+        if (callback) callback(this.openDatabases[index].db);
         return true;
     }
     close(database = "") {

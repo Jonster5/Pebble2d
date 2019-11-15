@@ -20,7 +20,7 @@ stage.add(fps);
 
 let balls = [];
 
-for (let i = 0; i < 2; i++) {
+for (let i = 0; i < 50; i++) {
     //Create a ball
 
     createBall();
@@ -48,7 +48,7 @@ function createBall(
     ball.gravity = 0.3;
     ball.frictionX = 1;
     ball.frictionY = 0;
-    ball.mass = 1.3;
+    ball.mass = 1.1;
     //Acceleration and friction properties
     ball.accelerationX = Pebble.randomFloat(-0.2, 0.2);
     ball.accelerationY = Pebble.randomFloat(-0.2, 0.2);
@@ -83,7 +83,7 @@ function update() {
             let foo2 = balls.slice(index + 1, balls.length);
             ba = foo.concat(foo2);
         }
-        Pebble.hit(ball, ba, true, true);
+        Pebble.hit(ball, ba, true, true, true);
     });
     fps.content = "FPS: " + Pebble.frameData.FPS;
 }

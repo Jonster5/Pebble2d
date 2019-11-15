@@ -270,10 +270,10 @@ Pebble.DisplayObject = class {
     remove(...spritesToRemove) {
         spritesToRemove.forEach(sprite => this.removeChild(sprite));
     }
-	addArray(spritesToAdd = []) {
+    addArray(spritesToAdd = []) {
         spritesToAdd.forEach(sprite => this.addChild(sprite));
     }
-	removeArray(spritesToRemove = []) {
+    removeArray(spritesToRemove = []) {
         spritesToRemove.forEach(sprite => this.removeChild(sprite));
     }
 
@@ -417,6 +417,7 @@ Pebble.Canvas = class {
         let obj = {
             width: width,
             height: height,
+            ctx: canvas.ctx,
             domElement: canvas
         }
 
@@ -553,12 +554,12 @@ Pebble.interpolationData = {
     _fps: 60,
     previous: 0,
     lag: 0,
-	get FPS() {
-		return this._fps;
-	},
-	set FPS(value) {
-		this._fps = value;
-	}
+    get FPS() {
+        return this._fps;
+    },
+    set FPS(value) {
+        this._fps = value;
+    }
 };
 Pebble.frameData = {
     times: [],
