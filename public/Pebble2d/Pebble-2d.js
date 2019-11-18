@@ -126,7 +126,7 @@ Pebble.DisplayObject = class {
     addChild(sprite) {
         //Remove the sprite from its current parent, if it has one, and
         //the parent isn't already this object
-        if (sprite.parent) {
+        if (sprite.parent !== undefined) {
             sprite.parent.removeChild(sprite);
         }
         //Make this object the sprite's parent and
@@ -624,25 +624,34 @@ Pebble.getLagOffset = function(timestamp, func) {
 
 
 Pebble.Rectangle = function(width = 32, height = 32, fillStyle = "gray", strokeStyle = "none", lineWidth = 0, x = 0, y = 0) {
-    return new RectangleCanvasObject(width, height, fillStyle, strokeStyle, lineWidth, x, y);
+    let sprite = new RectangleCanvasObject(width, height, fillStyle, strokeStyle, lineWidth, x, y);
+    stage.addChild(sprite);
+    return sprite;
 }
 Pebble.Circle = function(diameter = 32, fillStyle = "gray", strokeStyle = "none", lineWidth = 0, x = 0, y = 0) {
-    return new CircleCanvasObject(diameter, fillStyle, strokeStyle, lineWidth, x, y);
+    let sprite = new CircleCanvasObject(diameter, fillStyle, strokeStyle, lineWidth, x, y);
+    stage.addChild(sprite);
+    return sprite;
 }
-Pebble.Line = function(
-    strokeStyle = "none",
-    lineWidth = 0,
-    ax = 0, ay = 0, bx = 0, by = 0) {
-    return new LineCanvasObject(strokeStyle, lineWidth, ax, ay, bx, by);
+Pebble.Line = function(strokeStyle = "none", lineWidth = 0, ax = 0, ay = 0, bx = 0, by = 0) {
+    let sprite = new LineCanvasObject(strokeStyle, lineWidth, ax, ay, bx, by);
+    stage.addChild(sprite);
+    return sprite;
 }
 Pebble.Text = function(content = "", font = "12px sans-serif", fillStyle = "black", x = 0, y = 0) {
-    return new TextCanvasObject(content, font, fillStyle, x, y);
+    let sprite = new TextCanvasObject(content, font, fillStyle, x, y);
+    stage.addChild(sprite);
+    return sprite;
 }
 Pebble.Group = function(...spritesToGroup) {
-    return new ObjectGrouper(spritesToGroup);
+    let sprite = new ObjectGrouper(spritesToGroup);
+    stage.addChild(sprite);
+    return sprite;
 }
 Pebble.Sprite = function(source, x = 0, y = 0) {
-    return new SpriteCanvasObject(source, x, y);
+    let sprite = new SpriteCanvasObject(source, x, y);
+    stage.addChild(sprite);
+    return sprite;
 }
 
 
@@ -778,10 +787,17 @@ class TextCanvasObject extends Pebble.DisplayObject {
 
 class ObjectGrouper extends Pebble.DisplayObject {
     constructor(...spritesToGroup) {
-        super();
-        spritesToGroup.forEach(sprite => this.addChild(sprite));
-    }
 
+            //Call the DisplayObject's constructor
+            super();
+
+            //Group all the sprites listed in the constructor arguments
+            spritesToGroup.forEach(sprite => this.addChild(sprite));
+        }
+        //Groups have custom `addChild` and `removeChild` methods that call
+        //a `calculateSize` method when any sprites are added or removed
+        //from the group
+        //
     addChild(sprite) {
         if (sprite.parent) {
             sprite.parent.removeChild(sprite);
@@ -789,7 +805,7 @@ class ObjectGrouper extends Pebble.DisplayObject {
         sprite.parent = this;
         this.children.push(sprite);
 
-
+        //Figure out the new size of the group
         this.calculateSize();
     }
 
@@ -797,29 +813,54 @@ class ObjectGrouper extends Pebble.DisplayObject {
         if (sprite.parent === this) {
             this.children.splice(this.children.indexOf(sprite), 1);
 
-
+            //Figure out the new size of the group
             this.calculateSize();
         } else {
             throw new Error(`${sprite} is not a child of ${this}`);
         }
     }
+    add(...sta) {
+        sta.forEach(sprite => {
+            this.addChild(sprite);
+        });
+    }
+    remove(...sta) {
+        sta.forEach(sprite => {
+            this.removeChild(sprite);
+        });
+    }
+    addArray(sta) {
+        sta.forEach(sprite => {
+            this.addChild(sprite);
+        });
+    }
+    removeArray(...sta) {
+        sta.forEach(sprite => {
+            this.removeChild(sprite);
+        });
+    }
 
     calculateSize() {
 
-
+        //Calculate the width based on the size of the largest child
+        //that this sprite contains
         if (this.children.length > 0) {
 
-
+            //Some temporary private variables to help track the new
+            //calculated width and height
             this._newWidth = 0;
             this._newHeight = 0;
 
-
+            //Find the width and height of the child sprites furthest
+            //from the top left corner of the group
             this.children.forEach(child => {
 
-
+                //Find child sprites that combined x value and width
+                //that's greater than the current value of `_newWidth`
                 if (child.x + child.width > this._newWidth) {
 
-
+                    //The new width is a combination of the child's
+                    //x position and its width
                     this._newWidth = child.x + child.width;
                 }
                 if (child.y + child.height > this._newHeight) {
@@ -827,7 +868,8 @@ class ObjectGrouper extends Pebble.DisplayObject {
                 }
             });
 
-
+            //Apply the `_newWidth` and `_newHeight` to this sprite's width
+            //and height
             this.width = this._newWidth;
             this.height = this._newHeight;
         }

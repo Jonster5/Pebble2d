@@ -18,29 +18,33 @@ Pebble.contain = function(sprite, bounds, bounce = false, extra = undefined) {
         if (bounce) sprite.vx *= -1;
         //If the sprite has `mass`, let the mass
         //affect the sprite's velocity
-        if (sprite.mass) sprite.vx /= sprite.mass;
+        if (sprite.mass && sprite.mass >= 1) sprite.vx /= sprite.mass;
         sprite.x = x;
+        sprite.vx = 0;
         collision = "left";
     }
     //Top
     if (sprite.y < y) {
         if (bounce) sprite.vy *= -1;
-        if (sprite.mass) sprite.vy /= sprite.mass;
+        if (sprite.mass && sprite.mass >= 1) sprite.vy /= sprite.mass;
         sprite.y = y;
+        sprite.vy = 0;
         collision = "top";
     }
     //Right
     if (sprite.x + sprite.width > width) {
         if (bounce) sprite.vx *= -1;
-        if (sprite.mass) sprite.vx /= sprite.mass;
+        if (sprite.mass && sprite.mass >= 1) sprite.vx /= sprite.mass;
         sprite.x = width - sprite.width;
+        sprite.vx = 0;
         collision = "right";
     }
     //Bottom
     if (sprite.y + sprite.height >= height - 1) {
         if (bounce) sprite.vy *= -1;
-        if (sprite.mass) sprite.vy /= sprite.mass;
+        if (sprite.mass && sprite.mass >= 1) sprite.vy /= sprite.mass;
         sprite.y = height - sprite.height;
+        sprite.vy = 0;
         collision = "bottom";
     }
 

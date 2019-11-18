@@ -1,56 +1,122 @@
-let canvas = new Pebble.Canvas(document.body, 400, 400, "1px solid black");
+let canvas = new Pebble.Canvas(document.body, 512, 512, "1px solid black");
 let stage = new Pebble.Stage(canvas.width, canvas.height);
 let assets = new Pebble.AssetLoader();
 
 assets.load([
     "fonts/Lobster-Regular.ttf",
-    "images/animals.json"
+    "images/treasureHunter.json"
 ]).then(() => setup());
 
-let player;
 let animator;
-
-let right = Pebble.Keyboard(37);
-let left = Pebble.Keyboard(39);
-let space = Pebble.Keyboard(32);
+let world, player, treasure,
+    enemies, chimes, exit, healthBar,
+    message, gameScene, gameOverScene,
+    dungeon;
+let up = Pebble.Keyboard(38),
+    right = Pebble.Keyboard(39),
+    down = Pebble.Keyboard(40),
+    left = Pebble.Keyboard(37);
 
 Pebble.interpolationData.FPS = 30;
 
 function setup() {
-    player = Pebble.Sprite(assets["cat.png"]);
-    player.width = 20;
-    player.height = 20;
-    player.vx = 0;
-    player.vy = 0;
-    player.accelerationX = 0;
-    player.accelerationY = 0;
-    player.frictionX = 1;
-    player.frictionY = 1;
-    player.gravity = 0.3;
-    player.mass = 1;
-    player.isOnGround = false;
-    player.jumpForce = -6.8;
-    stage.putCenter(player);
-    stage.add(player);
+    dungeon = Pebble.Sprite(assets["dungeon.png"]);
+
+
+    exit = Pebble.Sprite(assets["door.png"]);
+    exit.x = 32;
+
+
+    player = Pebble.Sprite(assets["explorer.png"]);
+    stage.putCenter(player, -164);
+
+
+    treasure = Pebble.Sprite(assets["treasure.png"]);
+    stage.putRight(treasure, -64);
+
+
+    gameScene = Pebble.Group();
+    gameScene.add(dungeon, exit, player, treasure)
+
+    let numberOfEnemies = 6,
+        spacing = 48,
+        xOffset = 150,
+        speed = 2,
+        direction = 1;
+
+    enemies = [];
+
+    for (let i = 0; i < numberOfEnemies; i++) {
+        let enemy = Pebble.Sprite(assets["blob.png"]);
+
+        let x = spacing * i + xOffset;
+
+        let y = Pebble.randomInt(0, canvas.height - enemy.height);
+
+        enemy.x = x;
+        enemy.y = y;
+
+        enemy.vy = speed * direction;
+
+        direction *= -1;
+
+        enemies.push(enemy);
+
+        gameScene.addChild(enemy);
+    }
+
+
+    let outerBar = Pebble.Rectangle(128, 8, "black");
+    let innerBar = Pebble.Rectangle(128, 8, "red");
+    healthBar = Pebble.Group();
+    healthBar.add(outerBar, innerBar)
+
+    healthBar.inner = innerBar;
+    healthBar.x = canvas.width - 164;
+    healthBar.y = 4;
+
+    gameScene.addChild(healthBar);
+
+    message = Pebble.Text("Game Over!", "64px Lobster-Regular", "black", 20, 20);
+    message.x = 120;
+    message.y = canvas.height / 2 - 64;
+
+    gameOverScene = Pebble.Group();
+    gameOverScene.addChild(message);
+
+    gameOverScene.visible = false;
 
     left.press = () => {
-        if (right.isUp) player.accelerationX = 1;
+        if (right.isUp) player.vx = -5;
+        else player.vx = 0;
     };
     left.release = () => {
-        if (right.isUp) player.accelerationX = 0;
+        if (right.isUp) player.vx = 0;
+        else player.vx = 5;
     };
     right.press = () => {
-        if (left.isUp) player.accelerationX = -1;
+        if (left.isUp) player.vx = 5;
+        else player.vx = 0;
     };
     right.release = () => {
-        if (left.isUp) player.accelerationX = 0;
+        if (left.isUp) player.vx = 0;
+        else player.vx = -5;
     };
-    space.press = () => {
-        if (player.isOnGround) {
-            player.accelerationY += player.jumpForce;
-            player.isOnGround = false;
-            player.frictionX = 1;
-        }
+    up.press = () => {
+        if (down.isUp) player.vy = -5;
+        else player.vy = 0;
+    };
+    up.release = () => {
+        if (down.isUp) player.vy = 0;
+        else player.vy = 5;
+    };
+    down.press = () => {
+        if (up.isUp) player.vy = 5;
+        else player.vy = 0;
+    };
+    down.release = () => {
+        if (up.isUp) player.vy = 0;
+        else player.vy = -5;
     };
 
     Animate();
@@ -63,26 +129,40 @@ function Animate(timestamp) {
 }
 
 function update() {
-    player.vx += player.accelerationX;
-    player.vy += player.accelerationY;
-    player.accelerationY += player.gravity;
-    player.vx *= player.frictionX;
-    player.vy *= player.frictionY;
-
     player.x += player.vx;
     player.y += player.vy;
-    Pebble.contain(player, stage.localBounds, false, c => {
-        if (c === "bottom" || c === "top") {
-            player.frictionX = 0.96;
-            if (c === "bottom") player.isOnGround = true;
-        } else {
-            player.frictionX = 1;
+
+    Pebble.contain(player, {
+        x: 32,
+        y: 32,
+        width: canvas.width - 32,
+        height: canvas.height - 32
+    });
+
+    enemies.forEach(enemy => {
+        enemy.x += enemy.vx;
+        enemy.y += enemy.vy;
+        let playerHit;
+
+        Pebble.contain(enemy, {
+            x: 32,
+            y: 32,
+            width: canvas.width - 32,
+            height: canvas.height - 32
+        }, true);
+
+
+        if (Pebble.hit(player, enemy)) {
+            playerHit = true;
         }
-        if (c === "right" || c === "left") {
-            player.frictionY = 0.96;
+        if (playerHit) {
+            player.alpha = 0.5;
+            healthBar.inner.width -= 1;
         } else {
-            player.frictionY = 1;
+            player.alpha = 1;
         }
     });
+
+
 
 }
