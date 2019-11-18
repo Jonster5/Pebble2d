@@ -4,13 +4,14 @@ let assets = new Pebble.AssetLoader();
 
 assets.load([
     "fonts/Lobster-Regular.ttf",
-    "images/treasureHunter.json"
+    "images/th-1.json"
 ]).then(() => setup());
 
 let animator;
 let world, player, treasure,
     enemies, chimes, exit, healthBar,
-    message, gameScene, gameOverScene,
+    message, gameScenes = [],
+    titleScene,
     dungeon;
 let up = Pebble.Keyboard(38),
     right = Pebble.Keyboard(39),
@@ -33,7 +34,12 @@ function setup() {
     exit.x = 32;
 
 
-    player = Pebble.Sprite(assets["explorer.png"]);
+    player = Pebble.Sprite([
+        assets["explorer-0.png"],
+        assets["explorer-1.png"]
+    ]);
+    Pebble.addStatePlayer(player);
+
     stage.putCenter(player, -164);
 
 
@@ -41,8 +47,9 @@ function setup() {
     stage.putRight(treasure, -64);
 
 
-    gameScene = Pebble.Group();
-    gameScene.add(dungeon, exit, player, treasure)
+    gameScenes[0] = Pebble.Group();
+    gameScenes[0].add(dungeon, exit, player, treasure);
+
 
     let numberOfEnemies = 6,
         spacing = 48,
@@ -68,7 +75,7 @@ function setup() {
 
         enemies.push(enemy);
 
-        gameScene.addChild(enemy);
+        gameScenes[0].addChild(enemy);
     }
 
 
@@ -87,42 +94,50 @@ function setup() {
     message.x = 120;
     message.y = canvas.height / 2 - 64;
 
-    gameOverScene = Pebble.Group();
-    gameOverScene.addChild(message);
+    titleScene = Pebble.Group();
+    titleScene.addChild(message);
 
-    gameOverScene.visible = false;
+    titleScene.visible = false;
 
     left.press = () => {
         if (right.isUp) player.vx = -3;
         else player.vx = 0;
+        player.play();
     };
     left.release = () => {
         if (right.isUp) player.vx = 0;
         else player.vx = 3;
+        player.stop();
     };
     right.press = () => {
         if (left.isUp) player.vx = 3;
         else player.vx = 0;
+        player.play();
     };
     right.release = () => {
         if (left.isUp) player.vx = 0;
         else player.vx = -3;
+        player.stop();
     };
     up.press = () => {
         if (down.isUp) player.vy = -3;
         else player.vy = 0;
+        player.play();
     };
     up.release = () => {
         if (down.isUp) player.vy = 0;
         else player.vy = 3;
+        player.stop();
     };
     down.press = () => {
         if (up.isUp) player.vy = 3;
         else player.vy = 0;
+        player.play();
     };
     down.release = () => {
         if (up.isUp) player.vy = 0;
         else player.vy = -3;
+        player.stop();
     };
     w.press = () => up.press();
     w.release = () => up.release();
@@ -148,7 +163,7 @@ function update() {
 
     Pebble.contain(player, {
         x: 32,
-        y: 16,  
+        y: 16,
         width: canvas.width - 32,
         height: canvas.height - 32
     });
@@ -164,7 +179,7 @@ function update() {
             width: canvas.width - 32,
             height: canvas.height - 32
         }, true);
-       
+
         if (Pebble.hit(player, enemy)) {
             player.blendMode = "lighter";
             healthBar.inner.width -= 5;
@@ -177,19 +192,21 @@ function update() {
     if (Pebble.hit(player, treasure)) {
         treasure.x = player.x + 8;
         treasure.y = player.y + 8;
+        treasure.alpha = 0.8;
     }
 
     if (Pebble.hit(treasure, exit)) {
         gameScene.visible = false;
-        gameOverScene.visible = true;
+        titleScene.visible = true;
         stage.putCenter(message);
         message.content = "You Won!";
     }
 
     if (healthBar.inner.width <= 0) {
         gameScene.visible = false;
-        gameOverScene.visible = true;
+        titleScene.visible = true;
         stage.putCenter(message);
         message.content = "You Lost!";
-    }h
+    }
+
 };

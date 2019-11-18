@@ -1,0 +1,78 @@
+{"frames": {
+
+"blob.png":
+{
+	"frame": {"x":32,"y":512,"w":32,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":24},
+	"sourceSize": {"w":32,"h":24},
+	"vertices": [ [32,3], [32,24], [0,24], [0,0], [23,0] ],
+	"verticesUV": [ [64,515], [64,536], [32,536], [32,512], [55,512] ],
+	"triangles": [ [2,3,4], [1,2,4], [0,1,4] ]
+},
+"door.png":
+{
+	"frame": {"x":0,"y":512,"w":32,"h":32},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
+	"sourceSize": {"w":32,"h":32},
+	"vertices": [ [32,32], [0,32], [0,3], [1,1], [3,0], [32,0] ],
+	"verticesUV": [ [32,544], [0,544], [0,515], [1,513], [3,512], [32,512] ],
+	"triangles": [ [0,4,5], [2,3,4], [0,2,4], [0,1,2] ]
+},
+"dungeon.png":
+{
+	"frame": {"x":0,"y":0,"w":512,"h":512},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":512,"h":512},
+	"sourceSize": {"w":512,"h":512},
+	"vertices": [ [512,512], [0,512], [0,0], [512,0] ],
+	"verticesUV": [ [512,512], [0,512], [0,0], [512,0] ],
+	"triangles": [ [1,2,3], [0,1,3] ]
+},
+"explorer-0.png":
+{
+	"frame": {"x":64,"y":512,"w":22,"h":32},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":1,"y":1,"w":22,"h":32},
+	"sourceSize": {"w":24,"h":34},
+	"vertices": [ [23,33], [1,33], [1,1], [23,1] ],
+	"verticesUV": [ [86,544], [64,544], [64,512], [86,512] ],
+	"triangles": [ [1,2,3], [0,1,3] ]
+},
+"explorer-1.png":
+{
+	"frame": {"x":86,"y":512,"w":22,"h":32},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":1,"y":1,"w":22,"h":32},
+	"sourceSize": {"w":24,"h":34},
+	"vertices": [ [23,33], [1,33], [1,1], [23,1] ],
+	"verticesUV": [ [108,544], [86,544], [86,512], [108,512] ],
+	"triangles": [ [1,2,3], [0,1,3] ]
+},
+"treasure.png":
+{
+	"frame": {"x":108,"y":512,"w":28,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":24},
+	"sourceSize": {"w":28,"h":24},
+	"vertices": [ [28,24], [0,24], [0,3], [1,1], [3,0], [28,0] ],
+	"verticesUV": [ [136,536], [108,536], [108,515], [109,513], [111,512], [136,512] ],
+	"triangles": [ [0,4,5], [2,3,4], [1,4,0], [1,2,4] ]
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "th-1.png",
+	"format": "RGBA8888",
+	"size": {"w":512,"h":544},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:a75f8f54252bef210688215c8053c4fb:f71276567ba109c0f11fd80caade9e47:c4444bb37ae5ef0b168cbbe3b20b905a$"
+}
+}

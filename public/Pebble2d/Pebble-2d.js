@@ -650,6 +650,7 @@ Pebble.Group = function(...spritesToGroup) {
 }
 Pebble.Sprite = function(source, x = 0, y = 0) {
     let sprite = new SpriteCanvasObject(source, x, y);
+    if (sprite.frames.length > 0) Pebble.addStatePlayer(sprite);
     stage.addChild(sprite);
     return sprite;
 }
@@ -1061,4 +1062,120 @@ class SpriteCanvasObject extends Pebble.DisplayObject {
             this.width, this.height
         );
     }
+}
+
+Pebble.addStatePlayer = function(sprite) {
+    let frameCounter = 0,
+        numberOfFrames = 0,
+        startFrame = 0,
+        endFrame = 0,
+        timerInterval = undefined;
+    //playing = false;
+
+    //The `show` function (to display static states.)
+    function show(frameNumber) {
+        //Reset any possible previous animations
+        reset();
+
+        //Find the new state on the sprite.
+        sprite.gotoAndStop(frameNumber);
+    }
+
+    //The `play` function plays all the sprites frames
+    function play() {
+        if (!sprite.playing) {
+            playSequence([0, sprite.frames.length - 1]);
+        }
+    }
+
+    //The `stop` function stops the animation at the current frame
+    function stop() {
+        if (sprite.playing) {
+            reset();
+            sprite.gotoAndStop(sprite.currentFrame);
+        }
+    }
+
+    //The `playSequence` function, to play a sequence of frames.
+    function playSequence(sequenceArray) {
+        //Reset any possible previous animations
+        reset();
+
+        //Figure out how many frames there are in the range
+        startFrame = sequenceArray[0];
+        endFrame = sequenceArray[1];
+        numberOfFrames = endFrame - startFrame;
+
+        //Compensate for two edge cases:
+        //1. If the `startFrame` happens to be `0`
+        if (startFrame === 0) {
+            numberOfFrames += 1;
+            frameCounter += 1;
+        }
+
+        //2. If only a two-frame sequence was provided
+        if (numberOfFrames === 1) {
+            numberOfFrames = 2;
+            frameCounter += 1;
+        };
+
+        //Calculate the frame rate. Set the default fps to 12
+        if (!sprite.fps) sprite.fps = 12;
+        let frameRate = 1000 / sprite.fps;
+
+        //Set the sprite to the starting frame
+        sprite.gotoAndStop(startFrame);
+
+        //If the state isn't already playing, start it
+        if (!sprite.playing) {
+            timerInterval = setInterval(advanceFrame.bind(this), frameRate);
+            sprite.playing = true;
+        }
+    }
+
+    //`advanceFrame` is called by `setInterval` to display the next frame
+    //in the sequence based on the `frameRate`. When frame sequence
+    //reaches the end, it will either stop it or loop it
+    function advanceFrame() {
+
+        //Advance the frame if `frameCounter` is less than
+        //the state's total frames
+        if (frameCounter < numberOfFrames) {
+
+            //Advance the frame
+            sprite.gotoAndStop(sprite.currentFrame + 1);
+
+            //Update the frame counter
+            frameCounter += 1;
+
+            //If we've reached the last frame and `loop`
+            //is `true`, then start from the first frame again
+        } else {
+            if (sprite.loop) {
+                sprite.gotoAndStop(startFrame);
+                frameCounter = 1;
+            }
+        }
+    }
+
+    function reset() {
+
+        //Reset `playing` to `false`, set the `frameCounter` to 0,
+        //and clear the `timerInterval`
+        if (timerInterval !== undefined && sprite.playing === true) {
+            sprite.playing = false;
+            frameCounter = 0;
+            startFrame = 0;
+            endFrame = 0;
+            numberOfFrames = 0;
+            clearInterval(timerInterval);
+        }
+    }
+
+    //Add the `show`, `play`, `stop` and `playSequence` methods to the sprite.
+    sprite.show = show;
+    sprite.play = play;
+    sprite.stop = stop;
+    //sprite.playing = playing;
+    sprite.playSequence = playSequence;
 }
