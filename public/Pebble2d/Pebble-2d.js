@@ -621,7 +621,7 @@ Pebble.getLagOffset = function(timestamp, func) {
 
     return this.interpolationData.lag / frameDuration;
 }
-
+Pebble.buttons = [];
 
 Pebble.Rectangle = function(width = 32, height = 32, fillStyle = "gray", strokeStyle = "none", lineWidth = 0, x = 0, y = 0) {
     let sprite = new RectangleCanvasObject(width, height, fillStyle, strokeStyle, lineWidth, x, y);
@@ -651,6 +651,11 @@ Pebble.Group = function(...spritesToGroup) {
 Pebble.Sprite = function(source, x = 0, y = 0) {
     let sprite = new SpriteCanvasObject(source, x, y);
     if (sprite.frames.length > 0) Pebble.addStatePlayer(sprite);
+    stage.addChild(sprite);
+    return sprite;
+}
+Pebble.Button = function(source, x, y) {
+    let sprite = new Button(source, x, y);
     stage.addChild(sprite);
     return sprite;
 }
@@ -1064,6 +1069,21 @@ class SpriteCanvasObject extends Pebble.DisplayObject {
     }
 }
 
+class ButtonObject extends SpriteCanvasObject {
+    constructor(source, x = 0, y = 0) {
+        super(source, x, y);
+        this.interactive = true;
+    }
+}
+
+
+
+
+
+
+
+
+
 Pebble.addStatePlayer = function(sprite) {
     let frameCounter = 0,
         numberOfFrames = 0,
@@ -1178,4 +1198,129 @@ Pebble.addStatePlayer = function(sprite) {
     sprite.stop = stop;
     //sprite.playing = playing;
     sprite.playSequence = playSequence;
+}
+
+function makeInteractive(o) {
+
+    //The `press`,`release`, `over`, `out` and `tap` methods. They're `undefined`
+    //for now, but they can be defined in the game program
+    o.press = o.press || undefined;
+    o.release = o.release || undefined;
+    o.over = o.over || undefined;
+    o.out = o.out || undefined;
+    o.tap = o.tap || undefined;
+
+    //The `state` property tells you the button's
+    //current state. Set its initial state to "up"
+    o.state = "up";
+
+    //The `action` property tells you whether its being pressed or
+    //released
+    o.action = "";
+
+    //The `pressed` and `hoverOver` Booleans are mainly for internal
+    //use in this code to help figure out the correct state.
+    //`pressed` is a Boolean that helps track whether or not
+    //the sprite has been pressed down
+    o.pressed = false;
+
+    //`hoverOver` is a Boolean which checks whether the pointer
+    //has hovered over the sprite
+    o.hoverOver = false;
+
+    //The `update` method will be called each frame 
+    //inside the game loop
+    o.update = (pointer, canvas) => {
+
+        //Figure out if the pointer is touching the sprite
+        let hit = pointer.hitTestSprite(o);
+
+        //1. Figure out the current state
+        if (pointer.isUp) {
+
+            //Up state
+            o.state = "up";
+
+            //Show the first image state frame, if this is a `Button` sprite
+            if (o instanceof Button) o.gotoAndStop(0);
+        }
+
+        //If the pointer is touching the sprite, figure out
+        //if the over or down state should be displayed
+        if (hit) {
+
+            //Over state
+            o.state = "over";
+
+            //Show the second image state frame if this sprite has
+            //3 frames and it's a `Button` sprite
+            if (o.frames && o.frames.length === 3 && o instanceof Button) {
+                o.gotoAndStop(1);
+            }
+
+            //Down state
+            if (pointer.isDown) {
+                o.state = "down";
+
+                //Show the third frame if this sprite is a `Button` sprite and it
+                //has only three frames, or show the second frame if it
+                //only has two frames
+                if (o instanceof Button) {
+                    if (o.frames.length === 3) {
+                        o.gotoAndStop(2);
+                    } else {
+                        o.gotoAndStop(1);
+                    }
+                }
+            }
+        }
+
+        //Perform the correct interactive action
+
+        //a. Run the `press` method if the sprite state is "down" and
+        //the sprite hasn't already been pressed
+        if (o.state === "down") {
+            if (!o.pressed) {
+                if (o.press) o.press();
+                o.pressed = true;
+                o.action = "pressed";
+            }
+        }
+
+        //b. Run the `release` method if the sprite state is "over" and
+        //the sprite has been pressed
+        if (o.state === "over") {
+            if (o.pressed) {
+                if (o.release) o.release();
+                o.pressed = false;
+                o.action = "released";
+                //If the pointer was tapped and the user assigned a `tap`
+                //method, call the `tap` method
+                if (pointer.tapped && o.tap) o.tap();
+            }
+
+            //Run the `over` method if it has been assigned
+            if (!o.hoverOver) {
+                if (o.over) o.over();
+                o.hoverOver = true;
+            }
+        }
+
+        //c. Check whether the pointer has been released outside
+        //the sprite's area. If the button state is "up" and it's
+        //already been pressed, then run the `release` method.
+        if (o.state === "up") {
+            if (o.pressed) {
+                if (o.release) o.release();
+                o.pressed = false;
+                o.action = "released";
+            }
+
+            //Run the `out` method if it has been assigned
+            if (o.hoverOver) {
+                if (o.out) o.out();
+                o.hoverOver = false;
+            }
+        }
+    };
 }

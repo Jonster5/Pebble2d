@@ -13,6 +13,7 @@ let world, player, treasure,
     message, gameScenes = [],
     titleScene,
     dungeon;
+
 let up = Pebble.Keyboard(38),
     right = Pebble.Keyboard(39),
     down = Pebble.Keyboard(40),
@@ -27,6 +28,10 @@ let w = Pebble.Keyboard(87),
 Pebble.interpolationData.FPS = 30;
 
 function setup() {
+    world = {
+        cScene: 0
+    }
+
     dungeon = Pebble.Sprite(assets["dungeon.png"]);
 
 
@@ -88,7 +93,7 @@ function setup() {
     healthBar.x = canvas.width - 164;
     healthBar.y = 4;
 
-    gameScene.addChild(healthBar);
+    gameScenes[0].addChild(healthBar);
 
     message = Pebble.Text("Game Over!", "64px Lobster-Regular", "black", 20, 20);
     message.x = 120;
@@ -196,14 +201,14 @@ function update() {
     }
 
     if (Pebble.hit(treasure, exit)) {
-        gameScene.visible = false;
+        gameScene[0].visible = false;
         titleScene.visible = true;
         stage.putCenter(message);
         message.content = "You Won!";
     }
 
     if (healthBar.inner.width <= 0) {
-        gameScene.visible = false;
+        gameScene[0].visible = false;
         titleScene.visible = true;
         stage.putCenter(message);
         message.content = "You Lost!";
