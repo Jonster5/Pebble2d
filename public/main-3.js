@@ -10,7 +10,7 @@ assets.load([
 
 let animator;
 
-let world;
+let world, pointer;
 
 let up, right, down, left,
     w, a, s, d;
@@ -19,6 +19,7 @@ let up, right, down, left,
 Pebble.interpolationData.FPS = 30;
 
 function setup() {
+	pointer = Pebble.Pointer(canvas.domElement);
     world = new World({
         dungeon: Pebble.Sprite(assets["dungeon.png"]),
         exit: Pebble.Sprite(assets["door.png"]),
@@ -38,16 +39,33 @@ function setup() {
         stage.putCenter(title, -180, -100);
         this.group.addChild(title);
 
-        let playButton = Pebble.Button([
+        this.playButton = Pebble.Button([
             assets["titleButton.png"],
             assets["titleButton (1).png"],
             assets["titleButton (2).png"],
         ]);
-        stage.putCenter(playButton, 0, 100);
-        this.group.addChild(playButton);
+		this.playButton.down = false;
+		this.playButton.over = false;
+        stage.putCenter(this.playButton, 0, 100);
+        this.group.addChild(this.playButton);
 
     }, function(world) {
-
+		if (pointer.hitTestSprite(this.playButton) && pointer.isUp) {
+			this.playButton.gotoAndStop(1);
+			this.playButton.over = true;
+		} else if (pointer.isUp && pointer.hitTestSprite(this.playButton) === false && this.playButton.over === true) {
+			this.playButton.gotoAndStop(0);
+			this.playButton.over = false;
+		}
+		if (pointer.hitTestSprite(this.playButton) && pointer.isDown) {
+			this.playButton.gotoAndStop(2);
+			world.gotoScene(1);
+			this.playButton.down = true;
+			
+		} else if (pointer.hitTestSprite(this.playButton) && pointer.isUp && pointer.down === true) {
+			this.playButton.gotoAndStop(0);
+			this.playButton.down = false;
+		}
 
     });
 
@@ -133,6 +151,13 @@ function setup() {
             world.treasure.x = world.player.x + 8;
             world.treasure.y = world.player.y + 8;
         }
+
+		if (Pebble.hit(world.treasure, world.exit)) {
+			world.nextScene();
+		}
+		if (world.healthBar.inner.width <= 0) {
+			world.gotoScene(0);
+		}
     });
 
 
@@ -192,6 +217,10 @@ function setup() {
 
 function Animate(timestamp) {
     animator = requestAnimationFrame(Animate);
-
+	try {
+		Pebble.Buttons.forEach(button => button.update());
+	} catch (err) {
+		alert(err);
+	}
     Pebble.render(canvas.domElement, stage, true, Pebble.getLagOffset(timestamp, world.Scene.update));
 }
