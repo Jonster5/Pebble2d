@@ -8,141 +8,168 @@ assets.load([
 ]).then(() => setup());
 
 let animator;
-let world, player, treasure,
-    enemies, chimes, exit, healthBar,
-    message, gameScenes = [],
-    titleScene,
-    dungeon;
 
-let up = Pebble.Keyboard(38),
-    right = Pebble.Keyboard(39),
-    down = Pebble.Keyboard(40),
-    left = Pebble.Keyboard(37);
+let world;
 
-let w = Pebble.Keyboard(87),
-    a = Pebble.Keyboard(65),
-    s = Pebble.Keyboard(83),
-    d = Pebble.Keyboard(68);
+let up, right, down, left,
+    w, a, s, d;
 
 
 Pebble.interpolationData.FPS = 30;
 
 function setup() {
-    world = {
-        cScene: 0
-    }
+    world = new World({
+        dungeon: Pebble.Sprite(assets["dungeon.png"]),
+        exit: Pebble.Sprite(assets["door.png"]),
+        treasure: Pebble.Sprite(assets["treasure.png"]),
+        player: Pebble.Sprite([
+            assets["explorer-0.png"],
+            assets["explorer-1.png"]
+        ]),
+    });
+    //title scene
+    world.addNewScene(function(world) {
+        let background = Pebble.Sprite(assets["title.png"]);
+        this.group.addChild(background);
 
-    dungeon = Pebble.Sprite(assets["dungeon.png"]);
+        let title = Pebble.Text("Treasure Hunt!", "64px Lobster-Regular", "lightblue");
+        title.textBaseline = "middle";
+        stage.putCenter(title, -180, -100);
+        this.group.addChild(title);
 
+        let playButton
 
-    exit = Pebble.Sprite(assets["door.png"]);
-    exit.x = 32;
-
-
-    player = Pebble.Sprite([
-        assets["explorer-0.png"],
-        assets["explorer-1.png"]
-    ]);
-    Pebble.addStatePlayer(player);
-
-    stage.putCenter(player, -164);
-
-
-    treasure = Pebble.Sprite(assets["treasure.png"]);
-    stage.putRight(treasure, -64);
-
-
-    gameScenes[0] = Pebble.Group();
-    gameScenes[0].add(dungeon, exit, player, treasure);
+    }, function(world) {
 
 
-    let numberOfEnemies = 6,
-        spacing = 48,
-        xOffset = 150,
-        speed = 2,
-        direction = 1;
+    });
 
-    enemies = [];
+    //lvl 1
+    world.addNewScene(function(world) {
+        stage.putCenter(world.player, -164);
+        world.exit.x = 32;
+        stage.putRight(world.treasure, -64);
+        world.treasure.layer = 2;
 
-    for (let i = 0; i < numberOfEnemies; i++) {
-        let enemy = Pebble.Sprite(assets["blob.png"]);
+        let numberOfEnemies = 6,
+            spacing = 48,
+            xOffset = 150,
+            speed = 2,
+            direction = 1;
 
-        let x = spacing * i + xOffset;
+        let enemies = [];
+        for (let i = 0; i < numberOfEnemies; i++) {
+            let enemy = Pebble.Sprite(assets["blob.png"]);
 
-        let y = Pebble.randomInt(0, canvas.height - enemy.height);
+            let x = spacing * i + xOffset;
 
-        enemy.x = x;
-        enemy.y = y;
+            let y = Pebble.randomInt(0, canvas.height - enemy.height);
 
-        enemy.vy = speed * direction;
+            enemy.x = x;
+            enemy.y = y;
 
-        direction *= -1;
+            enemy.vy = speed * direction;
 
-        enemies.push(enemy);
+            direction *= -1;
 
-        gameScenes[0].addChild(enemy);
-    }
+            enemies.push(enemy);
+        }
+        this.enemies = enemies;
+
+        let outerBar = Pebble.Rectangle(128, 8, "black", "gold", 4);
+        let innerBar = Pebble.Rectangle(128, 8, "red", );
+        world.healthBar = Pebble.Group();
+        world.healthBar.add(outerBar, innerBar)
+
+        world.healthBar.inner = innerBar;
+        world.healthBar.x = canvas.width - 164;
+        world.healthBar.y = 4;
+
+        this.group.add(world.dungeon, world.exit, world.treasure, world.player, world.healthBar);
+        this.group.addArray(enemies);
+
+    }, function(world) {
+        world.player.x += world.player.vx;
+        world.player.y += world.player.vy;
+
+        if (world.player.vx === 0 && world.player.vy === 0) world.player.stop();
+        else world.player.play();
+
+        Pebble.contain(world.player, {
+            x: 32,
+            y: 16,
+            width: canvas.width - 32,
+            height: canvas.height - 32
+        });
+
+        for (enemy of this.enemies) {
+            enemy.x += enemy.vx;
+            enemy.y += enemy.vy;
+
+            Pebble.contain(enemy, {
+                x: 32,
+                y: 32,
+                width: canvas.width - 32,
+                height: canvas.height - 32
+            }, true);
+
+            if (Pebble.hit(world.player, enemy)) {
+                world.player.blendMode = "lighter";
+                world.healthBar.inner.width -= 10;
+                break;
+            } else {
+                world.player.blendMode = "none";
+            }
+        }
+
+        if (Pebble.hit(world.player, world.treasure)) {
+            world.treasure.x = world.player.x + 8;
+            world.treasure.y = world.player.y + 8;
+        }
+    });
 
 
-    let outerBar = Pebble.Rectangle(128, 8, "black");
-    let innerBar = Pebble.Rectangle(128, 8, "red");
-    healthBar = Pebble.Group();
-    healthBar.add(outerBar, innerBar)
 
-    healthBar.inner = innerBar;
-    healthBar.x = canvas.width - 164;
-    healthBar.y = 4;
 
-    gameScenes[0].addChild(healthBar);
-
-    message = Pebble.Text("Game Over!", "64px Lobster-Regular", "black", 20, 20);
-    message.x = 120;
-    message.y = canvas.height / 2 - 64;
-
-    titleScene = Pebble.Group();
-    titleScene.addChild(message);
-
-    titleScene.visible = false;
-
+    up = Pebble.Keyboard(38);
+    right = Pebble.Keyboard(39);
+    down = Pebble.Keyboard(40);
+    left = Pebble.Keyboard(37);
+    w = Pebble.Keyboard(87),
+        a = Pebble.Keyboard(65),
+        s = Pebble.Keyboard(83),
+        d = Pebble.Keyboard(68);
     left.press = () => {
-        if (right.isUp) player.vx = -3;
-        else player.vx = 0;
-        player.play();
+        if (right.isUp) world.player.vx = -3;
+        else world.player.vx = 0;
     };
     left.release = () => {
-        if (right.isUp) player.vx = 0;
-        else player.vx = 3;
-        player.stop();
+        if (right.isUp) world.player.vx = 0;
+        else world.player.vx = 3;
     };
     right.press = () => {
-        if (left.isUp) player.vx = 3;
-        else player.vx = 0;
-        player.play();
+        if (left.isUp) world.player.vx = 3;
+        else world.player.vx = 0;
     };
     right.release = () => {
-        if (left.isUp) player.vx = 0;
-        else player.vx = -3;
-        player.stop();
+        if (left.isUp) world.player.vx = 0;
+        else world.player.vx = -3;
     };
     up.press = () => {
-        if (down.isUp) player.vy = -3;
-        else player.vy = 0;
-        player.play();
+        if (down.isUp) world.player.vy = -3;
+        else world.player.vy = 0;
     };
     up.release = () => {
-        if (down.isUp) player.vy = 0;
-        else player.vy = 3;
-        player.stop();
+        if (down.isUp) world.player.vy = 0;
+        else world.player.vy = 3;
     };
     down.press = () => {
-        if (up.isUp) player.vy = 3;
-        else player.vy = 0;
-        player.play();
+        if (up.isUp) world.player.vy = 3;
+        else world.player.vy = 0;
     };
     down.release = () => {
-        if (up.isUp) player.vy = 0;
-        else player.vy = -3;
-        player.stop();
+        if (up.isUp) world.player.vy = 0;
+        else world.player.vy = -3;
     };
     w.press = () => up.press();
     w.release = () => up.release();
@@ -159,59 +186,5 @@ function setup() {
 function Animate(timestamp) {
     animator = requestAnimationFrame(Animate);
 
-    Pebble.render(canvas.domElement, stage, true, Pebble.getLagOffset(timestamp, update));
+    Pebble.render(canvas.domElement, stage, true, Pebble.getLagOffset(timestamp, world.Scene.update));
 }
-
-function update() {
-    player.x += player.vx;
-    player.y += player.vy;
-
-    Pebble.contain(player, {
-        x: 32,
-        y: 16,
-        width: canvas.width - 32,
-        height: canvas.height - 32
-    });
-
-    for (i in enemies) {
-        let enemy = enemies[i];
-        enemy.x += enemy.vx;
-        enemy.y += enemy.vy;
-
-        Pebble.contain(enemy, {
-            x: 32,
-            y: 32,
-            width: canvas.width - 32,
-            height: canvas.height - 32
-        }, true);
-
-        if (Pebble.hit(player, enemy)) {
-            player.blendMode = "lighter";
-            healthBar.inner.width -= 5;
-            break;
-        } else {
-            player.blendMode = "none";
-        }
-    }
-
-    if (Pebble.hit(player, treasure)) {
-        treasure.x = player.x + 8;
-        treasure.y = player.y + 8;
-        treasure.alpha = 0.8;
-    }
-
-    if (Pebble.hit(treasure, exit)) {
-        gameScene[0].visible = false;
-        titleScene.visible = true;
-        stage.putCenter(message);
-        message.content = "You Won!";
-    }
-
-    if (healthBar.inner.width <= 0) {
-        gameScene[0].visible = false;
-        titleScene.visible = true;
-        stage.putCenter(message);
-        message.content = "You Lost!";
-    }
-
-};

@@ -83,7 +83,7 @@ function update() {
             let foo2 = balls.slice(index + 1, balls.length);
             ba = foo.concat(foo2);
         }
-        Pebble.hit(ball, ba, true, true, true);
+        Pebble.hit(ball, ba, true, false, true);
     });
     fps.content = "FPS: " + Pebble.frameData.FPS;
 }
