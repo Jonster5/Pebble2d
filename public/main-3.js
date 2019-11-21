@@ -38,7 +38,7 @@ function setup() {
         stage.putCenter(title, -180, -100);
         this.group.addChild(title);
 
-        let playButton = Pebble.Sprite([
+        let playButton = Pebble.Button([
             assets["titleButton.png"],
             assets["titleButton (1).png"],
             assets["titleButton (2).png"],

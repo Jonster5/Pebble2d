@@ -16,6 +16,9 @@ if (typeof(Pebble) === "undefined" || Pebble === null) {
     }
 }
 
+Pebble.Buttons = [];
+Pebble.draggable = [];
+
 Pebble.DisplayObject = class {
     constructor(width = 0, height = 0) {
         //The sprite's position and size
@@ -373,7 +376,7 @@ Pebble.DisplayObject = class {
 
             //Add the sprite to the global `buttons` array so
             //it can be updated each frame
-            this.buttons.push(this);
+            Pebble.buttons.push(this);
 
             //Set this sprite’s private `_interactive` property to `true`
             this._interactive = true;
@@ -388,8 +391,7 @@ Pebble.DisplayObject = class {
         }
     }
 }
-Pebble.Buttons = [];
-Pebble.draggable = [];
+
 
 Pebble.Canvas = class {
     constructor(
@@ -657,7 +659,7 @@ Pebble.Sprite = function(source, x = 0, y = 0) {
     return sprite;
 }
 Pebble.Button = function(source, x, y) {
-    let sprite = new Button(source, x, y);
+    let sprite = new ButtonObject(source, x, y);
     stage.addChild(sprite);
     return sprite;
 }
