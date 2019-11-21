@@ -4,7 +4,8 @@ let assets = new Pebble.AssetLoader();
 
 assets.load([
     "fonts/Lobster-Regular.ttf",
-    "images/th-1.json"
+    "images/th-1.json",
+    "images/titleButton.json"
 ]).then(() => setup());
 
 let animator;
@@ -37,7 +38,13 @@ function setup() {
         stage.putCenter(title, -180, -100);
         this.group.addChild(title);
 
-        let playButton
+        let playButton = Pebble.Sprite([
+            assets["titleButton.png"],
+            assets["titleButton (1).png"],
+            assets["titleButton (2).png"],
+        ]);
+        stage.putCenter(playButton, 0, 100);
+        this.group.addChild(playButton);
 
     }, function(world) {
 
