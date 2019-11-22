@@ -23,7 +23,10 @@ function setup() {
     pointer = Pebble.Pointer(canvas.domElement);
     world = new World({
         dungeon: Pebble.Sprite(assets["dungeon.png"]),
-        exit: Pebble.Sprite(assets["door.png"]),
+        exit: Pebble.Sprite([
+            assets["door.png"],
+            assets["open-door.png"]
+        ]),
         treasure: Pebble.Sprite(assets["treasure.png"]),
         player: Pebble.Sprite([
             assets["explorer-0.png"],
