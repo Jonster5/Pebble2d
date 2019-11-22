@@ -1,4 +1,4 @@
-let canvas = new Pebble.Canvas(document.body, 512, 512, "5px solid black", "black");
+let canvas = new Pebble.Canvas(document.body, 512, 512, "5px solid black", "url('images/loading.png')");
 let stage = new Pebble.Stage(canvas.width, canvas.height);
 let assets = new Pebble.AssetLoader();
 
@@ -150,7 +150,8 @@ function setup() {
             world.treasure.y = world.player.y + 10;
             if (!this.hasTreasure) {
                 this.hasTreasure = true;
-                Pebble.sounds.bonus(0.6);
+				world.exit.gotoAndStop(0);
+                Pebble.sounds.bonus(0.5);
             }
         }
 
@@ -169,14 +170,15 @@ function setup() {
         world.exit.y = stage.height - 32;
         world.player.x = 32;
         world.player.y = stage.height - 32 - world.player.height;
-        stage.putRight(world.treasure, -64);
+        world.treasure.x = canvas.width - 32 - world.treasure.width;
+		world.treasure.y = 32;
         world.treasure.layer = 2;
 
         this.hasTreasure = false;
 
-        let numberOfEnemies = 6,
+        let numberOfEnemies = 9,
             spacing = 48,
-            xOffset = 150,
+            xOffset = 64,
             speed = 2,
             direction = 1;
 
@@ -191,7 +193,7 @@ function setup() {
             enemy.x = x;
             enemy.y = y;
 
-            enemy.vx = speed * direction;
+            enemy.vx = Pebble.randomInt(2,4.5) * direction;
 
             direction *= -1;
 
@@ -243,6 +245,7 @@ function setup() {
             world.treasure.y = world.player.y + 10;
             if (!this.hasTreasure) {
                 this.hasTreasure = true;
+				world.exit.gotoAndStop(0);
                 Pebble.sounds.bonus(0.6);
             }
         }
@@ -256,6 +259,24 @@ function setup() {
             Pebble.sounds.explosion(3);
         }
     });
+	world.addNewScene(function (world) {
+		world.exit.x = 32;
+        world.exit.y = stage.height - 32;
+        world.player.x = 32;
+        world.player.y = stage.height - 32 - world.player.height;
+        world.treasure.x = canvas.width - 32 - world.treasure.width;
+		world.treasure.y = 32;
+        world.treasure.layer = 2;
+
+		this.hasTreasure = false;
+
+
+		this.group.add(world.dungeon, world.exit, world.treasure, world.player, world.healthBar);
+        this.group.addArray(this.enemies);
+
+	}, function (world) {
+
+	});
 
 
 
