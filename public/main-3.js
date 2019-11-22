@@ -1,11 +1,12 @@
-let canvas = new Pebble.Canvas(document.body, 512, 512, "5px solid black");
+let canvas = new Pebble.Canvas(document.body, 512, 512, "5px solid black", "black");
 let stage = new Pebble.Stage(canvas.width, canvas.height);
 let assets = new Pebble.AssetLoader();
 
 assets.load([
     "fonts/Lobster-Regular.ttf",
     "images/th-1.json",
-    "images/titleButton.json"
+    "images/titleButton.json",
+    "sounds/Pixel Rain.mp3",
 ]).then(() => setup());
 
 let animator;
@@ -19,7 +20,7 @@ let up, right, down, left,
 Pebble.interpolationData.FPS = 30;
 
 function setup() {
-	pointer = Pebble.Pointer(canvas.domElement);
+    pointer = Pebble.Pointer(canvas.domElement);
     world = new World({
         dungeon: Pebble.Sprite(assets["dungeon.png"]),
         exit: Pebble.Sprite(assets["door.png"]),
@@ -28,9 +29,12 @@ function setup() {
             assets["explorer-0.png"],
             assets["explorer-1.png"]
         ]),
+        music: assets["sounds/Pixel Rain.mp3"],
     });
     //title scene
     world.addNewScene(function(world) {
+        world.music.pause();
+
         let background = Pebble.Sprite(assets["title.png"]);
         this.group.addChild(background);
 
@@ -44,37 +48,27 @@ function setup() {
             assets["titleButton (1).png"],
             assets["titleButton (2).png"],
         ]);
-		this.playButton.down = false;
-		this.playButton.over = false;
+        this.playButton.press = () => {
+            world.nextScene();
+            world.music.loop = true;
+            world.music.volume = 0.4;
+            if (!world.music.playing) world.music.restart();
+        }
         stage.putCenter(this.playButton, 0, 100);
         this.group.addChild(this.playButton);
-
-    }, function(world) {
-		if (pointer.hitTestSprite(this.playButton) && pointer.isUp) {
-			this.playButton.gotoAndStop(1);
-			this.playButton.over = true;
-		} else if (pointer.isUp && pointer.hitTestSprite(this.playButton) === false && this.playButton.over === true) {
-			this.playButton.gotoAndStop(0);
-			this.playButton.over = false;
-		}
-		if (pointer.hitTestSprite(this.playButton) && pointer.isDown) {
-			this.playButton.gotoAndStop(2);
-			world.gotoScene(1);
-			this.playButton.down = true;
-			
-		} else if (pointer.hitTestSprite(this.playButton) && pointer.isUp && pointer.down === true) {
-			this.playButton.gotoAndStop(0);
-			this.playButton.down = false;
-		}
 
     });
 
     //lvl 1
     world.addNewScene(function(world) {
-        stage.putCenter(world.player, -164);
+        world.player.x = 32;
+        world.player.y = 32;
         world.exit.x = 32;
+        world.exit.y = 0;
         stage.putRight(world.treasure, -64);
         world.treasure.layer = 2;
+
+        this.hasTreasure = false;
 
         let numberOfEnemies = 6,
             spacing = 48,
@@ -140,7 +134,8 @@ function setup() {
 
             if (Pebble.hit(world.player, enemy)) {
                 world.player.blendMode = "lighter";
-                world.healthBar.inner.width -= 10;
+                world.healthBar.inner.width -= 5;
+                Pebble.sounds.laserShot(0.5);
                 break;
             } else {
                 world.player.blendMode = "none";
@@ -148,18 +143,116 @@ function setup() {
         }
 
         if (Pebble.hit(world.player, world.treasure)) {
-            world.treasure.x = world.player.x + 8;
-            world.treasure.y = world.player.y + 8;
+            world.treasure.x = world.player.x + 10;
+            world.treasure.y = world.player.y + 10;
+            if (!this.hasTreasure) {
+                this.hasTreasure = true;
+                Pebble.sounds.bonus(0.6);
+            }
         }
 
-		if (Pebble.hit(world.treasure, world.exit)) {
-			world.nextScene();
-		}
-		if (world.healthBar.inner.width <= 0) {
-			world.gotoScene(0);
-		}
+        if (Pebble.hit(world.treasure, world.exit)) {
+            world.nextScene();
+            Pebble.sounds.bonus();
+        }
+        if (world.healthBar.inner.width <= 0) {
+            world.gotoScene(0);
+            Pebble.sounds.explosion(3);
+        }
     });
+    //lvl 2
+    world.addNewScene(function(world) {
+        world.exit.x = 32;
+        world.exit.y = stage.height - 32;
+        world.player.x = 32;
+        world.player.y = stage.height - 32 - world.player.height;
+        stage.putRight(world.treasure, -64);
+        world.treasure.layer = 2;
 
+        this.hasTreasure = false;
+
+        let numberOfEnemies = 6,
+            spacing = 48,
+            xOffset = 150,
+            speed = 2,
+            direction = 1;
+
+        let enemies = [];
+        for (let i = 0; i < numberOfEnemies; i++) {
+            let enemy = Pebble.Sprite(assets["blob.png"]);
+
+            let y = spacing * i + xOffset;
+
+            let x = Pebble.randomInt(0, canvas.width - enemy.width);
+
+            enemy.x = x;
+            enemy.y = y;
+
+            enemy.vx = speed * direction;
+
+            direction *= -1;
+
+            enemies.push(enemy);
+        }
+
+        this.enemies = enemies;
+
+        this.group.add(world.dungeon, world.exit, world.treasure, world.player, world.healthBar);
+        this.group.addArray(this.enemies);
+
+    }, function(world) {
+        world.player.x += world.player.vx;
+        world.player.y += world.player.vy;
+
+        if (world.player.vx === 0 && world.player.vy === 0) world.player.stop();
+        else world.player.play();
+
+        Pebble.contain(world.player, {
+            x: 32,
+            y: 16,
+            width: canvas.width - 32,
+            height: canvas.height - 32
+        });
+
+        for (enemy of this.enemies) {
+            enemy.x += enemy.vx;
+            enemy.y += enemy.vy;
+
+            Pebble.contain(enemy, {
+                x: 32,
+                y: 32,
+                width: canvas.width - 32,
+                height: canvas.height - 32
+            }, true);
+
+            if (Pebble.hit(world.player, enemy)) {
+                world.player.blendMode = "lighter";
+                world.healthBar.inner.width -= 5;
+                Pebble.sounds.laserShot(0.5);
+                break;
+            } else {
+                world.player.blendMode = "none";
+            }
+        }
+
+        if (Pebble.hit(world.player, world.treasure)) {
+            world.treasure.x = world.player.x + 10;
+            world.treasure.y = world.player.y + 10;
+            if (!this.hasTreasure) {
+                this.hasTreasure = true;
+                Pebble.sounds.bonus(0.6);
+            }
+        }
+
+        if (Pebble.hit(world.treasure, world.exit)) {
+            world.nextScene();
+            Pebble.sounds.bonus();
+        }
+        if (world.healthBar.inner.width <= 0) {
+            world.gotoScene(0);
+            Pebble.sounds.explosion(3);
+        }
+    });
 
 
 
@@ -217,10 +310,18 @@ function setup() {
 
 function Animate(timestamp) {
     animator = requestAnimationFrame(Animate);
-	try {
-		Pebble.Buttons.forEach(button => button.update());
-	} catch (err) {
-		alert(err);
-	}
+    if (Pebble.buttons.length > 0) {
+        canvas.domElement.style.cursor = "auto";
+        Pebble.buttons.forEach(button => {
+            if (button.parent.visible) {
+                button.update(pointer, canvas.domElement);
+                if (button.state == "over" || button.state == "down") {
+                    if (button.parent !== undefined) {
+                        canvas.domElement.style.cursor = "pointer";
+                    }
+                }
+            }
+        });
+    }
     Pebble.render(canvas.domElement, stage, true, Pebble.getLagOffset(timestamp, world.Scene.update));
 }

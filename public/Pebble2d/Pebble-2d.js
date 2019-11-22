@@ -16,7 +16,6 @@ if (typeof(Pebble) === "undefined" || Pebble === null) {
     }
 }
 
-Pebble.Buttons = [];
 Pebble.draggable = [];
 
 Pebble.DisplayObject = class {
@@ -1242,7 +1241,7 @@ function makeInteractive(o) {
             o.state = "up";
 
             //Show the first image state frame, if this is a `Button` sprite
-            if (o instanceof Button) o.gotoAndStop(0);
+            if (o instanceof ButtonObject) o.gotoAndStop(0);
         }
 
         //If the pointer is touching the sprite, figure out
@@ -1254,7 +1253,7 @@ function makeInteractive(o) {
 
             //Show the second image state frame if this sprite has
             //3 frames and it's a `Button` sprite
-            if (o.frames && o.frames.length === 3 && o instanceof Button) {
+            if (o.frames && o.frames.length === 3 && o instanceof ButtonObject) {
                 o.gotoAndStop(1);
             }
 
@@ -1265,7 +1264,7 @@ function makeInteractive(o) {
                 //Show the third frame if this sprite is a `Button` sprite and it
                 //has only three frames, or show the second frame if it
                 //only has two frames
-                if (o instanceof Button) {
+                if (o instanceof ButtonObject) {
                     if (o.frames.length === 3) {
                         o.gotoAndStop(2);
                     } else {

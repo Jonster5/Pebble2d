@@ -4,7 +4,7 @@ class World {
         this.currentScene = 0;
         Object.assign(this, gameObjects);
     }
-    addNewScene(setup, onUpdate) {
+    addNewScene(setup = function(world) {}, onUpdate = function(world) {}) {
         let obj = {
             group: Pebble.Group(),
 
@@ -15,10 +15,11 @@ class World {
         obj.prepare = setup.bind(obj, world);
         obj.update = onUpdate.bind(obj, world);
 
-        obj.prepare();
         this.scenes.push(obj);
         obj.group.visible = this.scenes.indexOf(obj) === 0 ? true : false;
-
+        if (obj.group.visible) {
+            obj.prepare();
+        }
     }
 
     nextScene() {
@@ -39,7 +40,7 @@ class World {
         }
     }
     gotoScene(index) {
-        if (Number.isInteger(index) && index > 0 && index < this.scenes.length) {
+        if (Number.isInteger(index) && index >= 0 && index < this.scenes.length) {
             this.Scene.group.visible = false;
             this.currentScene = index;
             this.scenes[this.currentScene].prepare();

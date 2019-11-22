@@ -1,5 +1,5 @@
 //Create the audio context
-let actx = new AudioContext();
+Pebble.actx = new AudioContext();
 
 //The sound object
 class Sound {
@@ -10,7 +10,7 @@ class Sound {
         this.loadHandler = loadHandler;
 
         //Set the default properties
-        this.actx = actx;
+        this.actx = Pebble.actx;
         this.volumeNode = this.actx.createGain();
         this.panNode = this.actx.createStereoPanner();
         this.convolverNode = this.actx.createConvolver();
@@ -166,7 +166,7 @@ class Sound {
             this.soundNode.stop(this.actx.currentTime);
             this.startOffset += this.actx.currentTime - this.startTime;
             this.playing = false;
-            console.log(this.startOffset);
+            return this.startOffset;
         }
     }
 
@@ -307,7 +307,7 @@ Experiment by changing these parameters to see what kinds of effects you can cre
 your own library of custom sound effects for games.
 */
 
-function soundEffect(
+Pebble.soundEffect = function(
     frequencyValue,
     attack = 0,
     decay = 1,
@@ -325,13 +325,13 @@ function soundEffect(
 
     //Create oscillator, gain and pan nodes, and connect them
     //together to the destination
-    let oscillator = actx.createOscillator(),
-        volume = actx.createGain(),
-        pan = actx.createStereoPanner();
+    let oscillator = Pebble.actx.createOscillator(),
+        volume = Pebble.actx.createGain(),
+        pan = Pebble.actx.createStereoPanner();
 
     oscillator.connect(volume);
     volume.connect(pan);
-    pan.connect(actx.destination);
+    pan.connect(Pebble.actx.destination);
 
     //Set the supplied values
     volume.gain.value = volumeValue;
@@ -381,9 +381,9 @@ function soundEffect(
     function addEcho(volumeNode) {
 
         //Create the nodes
-        let feedback = actx.createGain(),
-            delay = actx.createDelay(),
-            filter = actx.createBiquadFilter();
+        let feedback = Pebble.actx.createGain(),
+            delay = Pebble.actx.createDelay(),
+            filter = Pebble.actx.createBiquadFilter();
 
         //Set their values (delay time, feedback time and filter frequency)
         delay.delayTime.value = echo[0];
@@ -417,20 +417,20 @@ function soundEffect(
         volumeNode.gain.value = 0;
 
         volumeNode.gain.linearRampToValueAtTime(
-            0, actx.currentTime + wait
+            0, Pebble.actx.currentTime + wait
         );
         volumeNode.gain.linearRampToValueAtTime(
-            volumeValue, actx.currentTime + wait + attack
+            volumeValue, Pebble.actx.currentTime + wait + attack
         );
     }
 
     //Fade out (the sound’s “decay”)
     function fadeOut(volumeNode) {
         volumeNode.gain.linearRampToValueAtTime(
-            volumeValue, actx.currentTime + attack + wait
+            volumeValue, Pebble.actx.currentTime + attack + wait
         );
         volumeNode.gain.linearRampToValueAtTime(
-            0, actx.currentTime + wait + attack + decay
+            0, Pebble.actx.currentTime + wait + attack + decay
         );
     }
 
@@ -446,11 +446,11 @@ function soundEffect(
         if (!reverse) {
             oscillatorNode.frequency.linearRampToValueAtTime(
                 frequency,
-                actx.currentTime + wait
+                Pebble.actx.currentTime + wait
             );
             oscillatorNode.frequency.linearRampToValueAtTime(
                 frequency - pitchBendAmount,
-                actx.currentTime + wait + attack + decay
+                Pebble.actx.currentTime + wait + attack + decay
             );
         }
 
@@ -459,11 +459,11 @@ function soundEffect(
         else {
             oscillatorNode.frequency.linearRampToValueAtTime(
                 frequency,
-                actx.currentTime + wait
+                Pebble.actx.currentTime + wait
             );
             oscillatorNode.frequency.linearRampToValueAtTime(
                 frequency + pitchBendAmount,
-                actx.currentTime + wait + attack + decay
+                Pebble.actx.currentTime + wait + attack + decay
             );
         }
     }
@@ -472,10 +472,10 @@ function soundEffect(
     function addDissonance() {
 
         //Create two more oscillators and gain nodes
-        let d1 = actx.createOscillator(),
-            d2 = actx.createOscillator(),
-            d1Volume = actx.createGain(),
-            d2Volume = actx.createGain();
+        let d1 = Pebble.actx.createOscillator(),
+            d2 = Pebble.actx.createOscillator(),
+            d1Volume = Pebble.actx.createGain(),
+            d2Volume = Pebble.actx.createGain();
 
         //Set the volume to the `volumeValue`
         d1Volume.gain.value = volumeValue;
@@ -483,9 +483,9 @@ function soundEffect(
 
         //Connect the oscillators to the gain and destination nodes
         d1.connect(d1Volume);
-        d1Volume.connect(actx.destination);
+        d1Volume.connect(Pebble.actx.destination);
         d2.connect(d2Volume);
-        d2Volume.connect(actx.destination);
+        d2Volume.connect(Pebble.actx.destination);
 
         //Set the waveform to "sawtooth" for a harsh effect
         d1.type = "sawtooth";
@@ -527,7 +527,7 @@ function soundEffect(
 
     //The `play` function that starts the oscillators
     function play(oscillatorNode) {
-        oscillatorNode.start(actx.currentTime + wait);
+        oscillatorNode.start(Pebble.actx.currentTime + wait);
     }
 }
 
@@ -541,7 +541,7 @@ function impulseResponse(duration = 2, decay = 2, reverse = false) {
 
     //The length of the reverb effect will be the audio context's
     //`sampleRate` (the sound resolution) multiplied by the supplied duration
-    let length = actx.sampleRate * duration;
+    let length = Pebble.actx.sampleRate * duration;
 
     //Create an audio buffer (an empty sound container) to store the 
     //reverb effect. The audio context's `createBuffer` method lets you
@@ -550,7 +550,7 @@ function impulseResponse(duration = 2, decay = 2, reverse = false) {
     //1. numberOfChannels: 2, for right and left speakers (maximum is 32) 
     //bufferSize: the size of the buffer in sample frames 
     //sampleRate: the resolution of the sound
-    let impulse = actx.createBuffer(2, length, actx.sampleRate);
+    let impulse = actx.createBuffer(2, length, Pebble.actx.sampleRate);
 
     //Use `getChannelData` to initialize empty arrays to store sound data for
     //the left and right channels. The left channel is `0`, the right
@@ -580,3 +580,14 @@ function impulseResponse(duration = 2, decay = 2, reverse = false) {
     }
     return impulse;
 }
+
+Pebble.sounds = {
+    laserShot: (vol = 1) => Pebble.soundEffect(1046.5, 0, 0.3, "sawtooth", vol, 0.5, 0, 1200, false, 0, 25, [0.2, 0.2, 2000], undefined),
+    jump: (vol = 3) => Pebble.soundEffect(423.25, 0.05, 0.2, "sine", vol, 0.5, 0, 600, true, 100, 0, undefined, undefined),
+    explosion: (vol = 1) => Pebble.soundEffect(16, 0, 1, "sawtooth", vol, 0.5, 0, 0, false, 0, 50, undefined, undefined),
+    bonus: (vol = 1) => {
+        Pebble.soundEffect(587.33, 0, 0.2, "square", vol, 0, 0);
+        Pebble.soundEffect(880, 0, 0.2, "square", vol, 0, 0.1);
+        Pebble.soundEffect(1174.66, 0, 0.3, "square", vol, 0, 0.2);
+    },
+};
