@@ -1,0 +1,144 @@
+*{
+   
+    font-family: Courier, Helvetica;
+    color: aliceblue;
+}
+
+body{
+	margin: 0px;
+    padding: 0px;
+    background: black;
+/*     min-height: 100vh; */
+}
+
+div,
+p,
+input,
+span{
+	box-sizing: border-box;
+}
+
+a{
+	color: white;
+	text-shadow: 0px 0px 5px blue, 0px 0px 10px white;
+}
+
+.display{
+    font-family: Nanum Myeongjo;
+    color: wheat;
+}
+
+input.input{
+	background: transparent;
+	border: 0px;
+	border-bottom: 1px solid;
+}
+input.button{
+	background: black;
+	border: 1px solid grey;
+	cursor: pointer;
+}
+
+.flex-wrapper{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+
+#spinner{
+	position: fixed;
+	width: 100%;
+	height: 100vh;
+	z-index: 9;
+	transition: 1s;
+	background: rgba(0, 0, 0, .7)
+}
+#spinner img{
+	max-width: 50px;
+}
+
+#flash-contain{
+	position: fixed;
+	z-index: 9;
+	top: 0; 
+	left: 0;
+	width: 100%;
+	height: 100vh;
+	pointer-events: none;
+	opacity: 0;
+	transition: 1s
+}
+img#flash{
+	position: absolute;
+	width: 10px;
+	transition: 1s;
+}
+
+#alert-contain{
+	position:fixed;
+	z-index: 999999;
+	top: 0px;
+	left: 15%;
+	text-align: center;
+	width: 70%;
+	pointer-events: none;
+	padding-top: 10px;
+}
+.alert-wrap{
+	transition: .5s;
+}
+.alert-msg{
+	position: relative;
+	background: rgba(0, 0, 0, .7);
+	color: lightgrey;
+	font-size: 16px;
+	display: inline-block;
+	padding: 10px 40px;
+	border: 1px solid grey;
+}
+.alert-icon, 
+.alert-close{
+	display: inline-block;
+	font-size: 16px;
+	border-radius: 5px;
+}
+.alert-icon{
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	padding: 3px;
+}
+.alert-close{
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	pointer-events: initial;
+	cursor: pointer;
+	border: 1px solid grey;
+	padding: 2px 5px 0px 5px;
+}
+.alert-close:hover{
+	background: rgba(250, 50, 55, .4);
+}
+.standard .alert-icon{
+	border: 1px solid grey;
+}
+.success .alert-icon{
+	background: rgba(100, 255, 100, .7);
+}
+.error .alert-icon{
+	background: rgba(255, 0, 0, .5);
+}
+.hal .alert-icon{
+	background: rgba(255, 155, 0, .5)
+}
+
+.button{
+	border: 1px solid grey;
+	background: rgba(50, 120, 250, .1);
+	padding: 5px 10px;
+	cursor: pointer;
+	user-select: none;
+}
+

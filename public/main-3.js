@@ -54,7 +54,7 @@ function setup() {
         this.playButton.press = () => {
             world.nextScene();
             world.music.loop = true;
-            world.music.volume = 0.4;
+            world.music.volume = 0.1;
             if (!world.music.playing) world.music.restart();
         }
         stage.putCenter(this.playButton, 0, 100);
@@ -138,7 +138,7 @@ function setup() {
             if (Pebble.hit(world.player, enemy)) {
                 world.player.blendMode = "lighter";
                 world.healthBar.inner.width -= 5;
-                Pebble.sounds.laserShot(0.5);
+                Pebble.sounds.laserShot(0.2);
                 break;
             } else {
                 world.player.blendMode = "none";
@@ -150,28 +150,29 @@ function setup() {
             world.treasure.y = world.player.y + 10;
             if (!this.hasTreasure) {
                 this.hasTreasure = true;
-				world.exit.gotoAndStop(0);
-                Pebble.sounds.bonus(0.5);
+                world.exit.gotoAndStop(1);
+                Pebble.sounds.bonus(0.2);
             }
         }
 
         if (Pebble.hit(world.treasure, world.exit)) {
             world.nextScene();
-            Pebble.sounds.bonus();
+            Pebble.sounds.bonus(0.2);
         }
         if (world.healthBar.inner.width <= 0) {
             world.gotoScene(0);
-            Pebble.sounds.explosion(3);
+            Pebble.sounds.explosion(1);
         }
     });
     //lvl 2
     world.addNewScene(function(world) {
         world.exit.x = 32;
         world.exit.y = stage.height - 32;
+        world.exit.gotoAndStop(0);
         world.player.x = 32;
         world.player.y = stage.height - 32 - world.player.height;
         world.treasure.x = canvas.width - 32 - world.treasure.width;
-		world.treasure.y = 32;
+        world.treasure.y = 32;
         world.treasure.layer = 2;
 
         this.hasTreasure = false;
@@ -179,7 +180,6 @@ function setup() {
         let numberOfEnemies = 9,
             spacing = 48,
             xOffset = 64,
-            speed = 2,
             direction = 1;
 
         let enemies = [];
@@ -193,7 +193,7 @@ function setup() {
             enemy.x = x;
             enemy.y = y;
 
-            enemy.vx = Pebble.randomInt(2,4.5) * direction;
+            enemy.vx = Pebble.randomInt(2, 4.5) * direction;
 
             direction *= -1;
 
@@ -233,7 +233,7 @@ function setup() {
             if (Pebble.hit(world.player, enemy)) {
                 world.player.blendMode = "lighter";
                 world.healthBar.inner.width -= 5;
-                Pebble.sounds.laserShot(0.5);
+                Pebble.sounds.laserShot(0.2);
                 break;
             } else {
                 world.player.blendMode = "none";
@@ -245,38 +245,43 @@ function setup() {
             world.treasure.y = world.player.y + 10;
             if (!this.hasTreasure) {
                 this.hasTreasure = true;
-				world.exit.gotoAndStop(0);
-                Pebble.sounds.bonus(0.6);
+                world.exit.gotoAndStop(1);
+                Pebble.sounds.bonus(0.2);
             }
         }
 
         if (Pebble.hit(world.treasure, world.exit)) {
             world.nextScene();
-            Pebble.sounds.bonus();
+            Pebble.sounds.bonus(0.2);
         }
         if (world.healthBar.inner.width <= 0) {
             world.gotoScene(0);
-            Pebble.sounds.explosion(3);
+            Pebble.sounds.explosion(1);
         }
     });
-	world.addNewScene(function (world) {
-		world.exit.x = 32;
-        world.exit.y = stage.height - 32;
-        world.player.x = 32;
-        world.player.y = stage.height - 32 - world.player.height;
-        world.treasure.x = canvas.width - 32 - world.treasure.width;
-		world.treasure.y = 32;
+    //lvl 3
+    world.addNewScene(function(world) {
+        stage.putBottom(world.exit, 0, -32);
+        world.exit.gotoAndStop(0);
+        stage.putBottom(world.player, 0, -64);
+        world.treasure.x = 32;
+        world.treasure.y = 32;
         world.treasure.layer = 2;
 
-		this.hasTreasure = false;
+        this.hasTreasure = false;
+
+        enemies = [];
+        blocks = [];
 
 
-		this.group.add(world.dungeon, world.exit, world.treasure, world.player, world.healthBar);
+
+
+        this.group.add(world.dungeon, world.exit, world.treasure, world.player, world.healthBar);
         this.group.addArray(this.enemies);
 
-	}, function (world) {
+    }, function(world) {
 
-	});
+    });
 
 
 
@@ -284,10 +289,10 @@ function setup() {
     right = Pebble.Keyboard(39);
     down = Pebble.Keyboard(40);
     left = Pebble.Keyboard(37);
-    w = Pebble.Keyboard(87),
-        a = Pebble.Keyboard(65),
-        s = Pebble.Keyboard(83),
-        d = Pebble.Keyboard(68);
+    w = Pebble.Keyboard(87);
+    a = Pebble.Keyboard(65);
+    s = Pebble.Keyboard(83);
+    d = Pebble.Keyboard(68);
     left.press = () => {
         if (right.isUp) world.player.vx = -3;
         else world.player.vx = 0;

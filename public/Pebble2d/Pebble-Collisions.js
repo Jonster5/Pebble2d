@@ -20,6 +20,7 @@ Pebble.contain = function(sprite, bounds, bounce = false, extra = () => {}) {
         //affect the sprite's velocity
         if (sprite.mass) sprite.vx /= sprite.mass;
         sprite.x = x;
+
         collision = "left";
     }
     //Top
@@ -27,6 +28,7 @@ Pebble.contain = function(sprite, bounds, bounce = false, extra = () => {}) {
         if (bounce) sprite.vy *= -1;
         if (sprite.mass) sprite.vy /= sprite.mass;
         sprite.y = y;
+
         collision = "top";
     }
     //Right
@@ -34,6 +36,7 @@ Pebble.contain = function(sprite, bounds, bounce = false, extra = () => {}) {
         if (bounce) sprite.vx *= -1;
         if (sprite.mass) sprite.vx /= sprite.mass;
         sprite.x = width - sprite.width;
+
         collision = "right";
     }
     //Bottom
@@ -41,6 +44,7 @@ Pebble.contain = function(sprite, bounds, bounce = false, extra = () => {}) {
         if (bounce) sprite.vy *= -1;
         if (sprite.mass) sprite.vy /= sprite.mass;
         sprite.y = height - sprite.height;
+
         collision = "bottom";
     }
 

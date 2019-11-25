@@ -582,10 +582,10 @@ function impulseResponse(duration = 2, decay = 2, reverse = false) {
 }
 
 Pebble.sounds = {
-    laserShot: (vol = 1) => Pebble.soundEffect(1046.5, 0, 0.3, "sawtooth", vol, 0.5, 0, 1200, false, 0, 25, [0.2, 0.2, 2000], undefined),
-    jump: (vol = 3) => Pebble.soundEffect(423.25, 0.05, 0.2, "sine", vol, 0.5, 0, 600, true, 100, 0, undefined, undefined),
-    explosion: (vol = 1) => Pebble.soundEffect(16, 0, 1, "sawtooth", vol, 0.5, 0, 0, false, 0, 50, undefined, undefined),
-    bonus: (vol = 1) => {
+    laserShot: (vol = 1) => Pebble.soundEffect(1046.5, 0, 0.3, "sawtooth", vol, 0, 0, 1200, false, 0, 25, [0.2, 0.2, 2000], undefined),
+    jump: (vol = 3) => Pebble.soundEffect(423.25, 0.05, 0.2, "sine", vol, 0, 0, 600, true, 100, 0, undefined, undefined),
+    explosion: (vol = 1) => Pebble.soundEffect(16, 0, 1, "sawtooth", vol, 0, 0, 0, false, 0, 50, undefined, undefined),
+    bonus: (vol = 1, ) => {
         Pebble.soundEffect(587.33, 0, 0.2, "square", vol, 0, 0);
         Pebble.soundEffect(880, 0, 0.2, "square", vol, 0, 0.1);
         Pebble.soundEffect(1174.66, 0, 0.3, "square", vol, 0, 0.2);

@@ -157,8 +157,14 @@ Pebble.DisplayObject = class {
     get centerX() {
         return this.x + this.halfWidth;
     }
+    set centerX(value = 0) {
+        this.x = value - this.halfWidth;
+    }
     get centerY() {
         return this.y + this.halfHeight;
+    }
+    set centerY(value = 0) {
+        this.y = value - this.halfHeight;
     }
 
     /* Conveniences */
@@ -421,7 +427,49 @@ Pebble.Canvas = class {
             width: width,
             height: height,
             ctx: canvas.ctx,
-            domElement: canvas
+            domElement: canvas,
+            exportAsPNG(fileName = "") {
+                try {
+                    let canvasElement = this.domElement;
+
+                    let MIME_TYPE = "image/png";
+
+                    let imgURL = canvasElement.toDataURL(MIME_TYPE);
+
+                    let dlLink = document.createElement('a');
+                    dlLink.download = fileName;
+                    dlLink.href = imgURL;
+                    dlLink.dataset.downloadurl = [MIME_TYPE, dlLink.download, dlLink.href].join(':');
+
+                    document.body.appendChild(dlLink);
+                    dlLink.click();
+                    document.body.removeChild(dlLink);
+                    return true;
+                } catch (err) {
+                    return false;
+                }
+            },
+            exportAsJPG(fileName = "") {
+                try {
+                    let canvasElement = this.domElement;
+
+                    let MIME_TYPE = "image/jpeg";
+
+                    let imgURL = canvasElement.toDataURL(MIME_TYPE);
+
+                    let dlLink = document.createElement('a');
+                    dlLink.download = fileName;
+                    dlLink.href = imgURL;
+                    dlLink.dataset.downloadurl = [MIME_TYPE, dlLink.download, dlLink.href].join(':');
+
+                    document.body.appendChild(dlLink);
+                    dlLink.click();
+                    document.body.removeChild(dlLink);
+                    return true
+                } catch (err) {
+                    return false;
+                }
+            }
         }
 
         return obj;

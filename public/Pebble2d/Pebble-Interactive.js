@@ -365,3 +365,56 @@ Pebble.Pointer = function(element = document.body, scale = 1) {
     //Return the pointer
     return pointer;
 }
+
+Pebble.sleep = function(milliseconds = 0) {
+    let date = new Date();
+    let curDate = null;
+    do { curDate = new Date(); }
+    while (curDate - date < milliseconds);
+}
+
+Pebble.distance = function(s1, s2) {
+    let vx = s2.centerX - s1.centerX,
+        vy = s2.centerY - s1.centerY;
+    return Math.sqrt(vx * vx + vy + vy);
+}
+
+Pebble.followEase = function(follower, leader, speed = 0.1) {
+    let vx = leader.centerX - follower.centerX,
+        vy = leader.centerY - follower.centerY,
+        distance = Math.sqrt(vx * vx + vy * vy);
+    if (distance >= 1) {
+        follower.x += vx * speed;
+        follower.y += vy * speed;
+    }
+}
+
+Pebble.followConstant = function(follower, leader, speed = 0.1) {
+    let vx = leader.centerX - follower.centerX,
+        vy = leader.centerY - follower.centerY,
+        distance = Math.sqrt(vx * vx + vy * vy);
+    if (distance >= 1 * speed) {
+        follower.x += (vx / distance) * speed;
+        follower.y += (vy / distance) * speed;
+    }
+}
+
+Pebble.angle = function(s1, s2) {
+    return Math.atan2(
+        s2.centerY - s1.centerY,
+        s2.centerX - s1.centerX
+    );
+}
+
+Pebble.rotateSprite = function(rotatingSprite, centerSprite, distance, speed) {
+    if (rotatingSprite.angle === undefined) rotatingSprite.angle = 0;
+    rotatingSprite.angle += speed;
+
+    rotatingSprite.x = centerSprite.centerX - rotatingSprite.parent.x +
+        (distance * Math.cos(rotatingSprite.angle)) -
+        rotatingSprite.halfWidth;
+
+    rotatingSprite.y = centerSprite.centerY - rotatingSprite.parent.y +
+        (distance * Math.sin(rotatingSprite.angle)) -
+        rotatingSprite.halfWidth;
+}

@@ -1,0 +1,34 @@
+body{   
+    text-align: center;
+}
+
+#header{
+    text-align: left;
+    width: 100%;
+}
+
+#logo{
+    display: inline-block;
+    max-width: 60px;
+}
+#logo img{
+    max-width: 100%;
+}
+
+#auth{
+    padding: 10px;    
+    position: absolute;
+    top: 0;
+    right: 0px;
+}
+
+#content{
+    display: inline-block;
+    max-width: 300px;
+    margin-top: 10%;
+}
+
+#content input{
+    width: 100%;
+    margin: 20px 0;
+}
