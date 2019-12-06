@@ -48,7 +48,7 @@ Pebble.Webcam = function(domElement = document.body, width = 100, height = 100, 
                 .catch(error => console.log(error));
         }
     };
-    obj.captureFrame = function(download = "") {
+    obj.captureFrame = function(download = "", mime_type = "image/png") {
         if (Pebble.DisplayObject === undefined || typeof(Pebble.DisplayObject) === "undefined") {
             throw new Error('Pebble2d is required for this action');
         } else {
@@ -59,10 +59,13 @@ Pebble.Webcam = function(domElement = document.body, width = 100, height = 100, 
 
 
             if (download) {
-                canvas.exportAsPNG(download);
+                if (mime_type === "image/png") canvas.exportAsPNG(download);
+                if (mime_type === "image/jpeg") canvas.exportAsJPG(download);
+                else canvas.exportAsPNG(download);
                 document.body.removeChild(canvas.domElement);
+                return;
             } else {
-                let data = canvas.domElement.toDataURL('image/png');
+                let data = canvas.domElement.toDataURL(mime_type);
                 document.body.removeChild(canvas.domElement);
                 return data;
             }

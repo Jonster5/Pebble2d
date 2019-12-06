@@ -24,10 +24,40 @@ Pebble.DataLoader = class {
                 this.storage.splice(index, 1);
                 return true;
             },
-            updateNode(name, val) {},
-            getNode(name) {},
+            updateNode(name = "", val) {
+                if (this.storage.length > 0) {
+                    try {
+                        this.storage.forEach(node => {
+                            if (node.name === name && node.type === typeof(val)) {
+                                node.value = val;
+                            } else if (node.name === undefined) {
+                                throw new Error();
+                            }
+                        });
+                    } catch (error) {
+                        throw new Error(`Node ${name} either doesn't exist, or the value you tried to update is not of the same type`);
+                    }
+                }
+            },
+            getNode(name = "") {
+                if (this.storage.length > 0) {
+                    try {
+                        this.storage.forEach(node => {
+                            if (node.name === name) {
+                                return {
+                                    value: node.value,
+                                    type: node.type
+                                };
+                            }
+                        });
+                    } catch (error) {
+                        throw new Error(`Node ${name} either doesn't exist`);
+                    }
+                }
+            },
+            removeAll() {
 
-            removeAll() {},
+            },
             getAll() {}
         };
 
