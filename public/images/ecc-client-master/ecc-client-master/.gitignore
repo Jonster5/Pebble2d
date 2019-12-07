@@ -1,9 +1,0 @@
-.*
-!.gitignore
-
-inc/
-resources/
-media/
-js/sky/core/env.js
-js/sky/node_modules/
-js/sky/package-lock.json

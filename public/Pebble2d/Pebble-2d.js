@@ -404,7 +404,9 @@ Pebble.Canvas = class {
         width = 400,
         height = 400,
         border = "1px dashed black",
-        background = "white") {
+        background = "white",
+        id = ""
+    ) {
         let canvas = document.createElement('canvas');
 
         canvas.setAttribute("width", width);
@@ -422,6 +424,7 @@ Pebble.Canvas = class {
         canvas.ctx.scale(dpr, dpr);
 
         canvas.setAttribute("style", `width: ${width}px; height: ${height}px; border: ${border}; background: ${background};`);
+
 
         let obj = {
             width: width,
