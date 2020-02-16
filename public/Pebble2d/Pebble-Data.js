@@ -66,8 +66,10 @@ Pebble.DataLoader = class {
             for (let i = 0; i < window.localStorage.length; i++) {
                 let key = window.localStorage.key(i);
                 let foo = window.localStorage.getItem(key);
-                foo = JSON.parse(foo);
-                if (typeof(foo.id) === "string") this.databases.push(foo);
+                if (foo.slice(0, 4) == "{id:") {
+                    foo = JSON.parse(foo);
+                    if (typeof(foo.id) === "string") this.databases.push(foo);
+                }
             }
         }
     }
@@ -106,14 +108,18 @@ Pebble.DataLoader = class {
         }
     }
     open(database = "", callback = undefined) {
-        let db = JSON.parse(window.localStorage.getItem(database));
-        this.openDatabases.push(db);
-        let index = this.openDatabases.indexOf(db);
-        Object.assign(this.openDatabases[index].db, this.dataHandler);
-        if (callback) {
-            callback(this.openDatabases[index].db);
+        try {
+            let db = JSON.parse(window.localStorage.getItem(database));
+            this.openDatabases.push(db);
+            let index = this.openDatabases.indexOf(db);
+            Object.assign(this.openDatabases[index].db, this.dataHandler);
+            if (callback) {
+                callback(this.openDatabases[index].db);
+            }
+            return true;
+        } catch (err) {
+            return false;
         }
-        return true;
     }
     close(database = "") {
         let db = this.openDatabases.find(x => x.id === database);

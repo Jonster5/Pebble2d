@@ -1,30 +1,30 @@
-let canvas = new Pebble.Canvas(document.body, 600, 600);
-let stage = new Pebble.Stage(canvas.width, canvas.height);
-let assets = new Pebble.AssetLoader();
+let canvas = new Pebble.Canvas(document.body, 600, 600); //this creates the canvas where everything is drawn
+let stage = new Pebble.Stage(canvas.width, canvas.height); //this creates the parent object that everything is based on. sorta like the origin in a graph
+let assets = new Pebble.AssetLoader(); //this is a utility that i made which can load shit like images and sounds
 
 let colors = [
     "#FFABAB", "#FFDAAB", "#DDFFAB", "#ABE4FF", "#D9ABFF"
-];
+]; //this is just a list of colors for the balls
 
-let space = Pebble.Keyboard(32);
+let space = Pebble.Keyboard(32); //this binds the key with a code of 32 (spacebar) to the variable called "space"
 space.press = () => {
     stage.remove(balls[0]);
     balls.shift();
-};
+}; //this says what to do once space is pressed
 
-let pointer = Pebble.Pointer();
-pointer.press = () => createBall(pointer.x, pointer.y);
+let pointer = Pebble.Pointer(); //this creates a new pointer, which is what your mouse controls
+pointer.press = () => createBall(pointer.x, pointer.y); //this will say what to do when the pointer is pressed
 
-let fps = Pebble.Text("FPS: ", "12px sans-serif", "black", 16, 16);
-stage.add(fps);
+let fps = Pebble.Text("FPS: ", "12px sans-serif", "black", 16, 16); //this is the FPS counter in the top right
+stage.add(fps); //this adds to fps counter to the stage so it can be rendered
 
-let balls = [];
+let balls = []; //this will be the list where all the balls are stored
 
 for (let i = 0; i < 50; i++) {
     //Create a ball
 
     createBall();
-}
+} //this runs the function "createBall" 50 times
 
 function createBall(
     x = Pebble.randomInt(0, canvas.width - 32),
@@ -57,7 +57,7 @@ function createBall(
     //Push the ball into the `balls` array
     stage.addChild(ball);
     balls.push(ball);
-}
+} // i dont want to explain this, but this function will create a single ball, add the ball to the list of balls, and add it to the stage
 
 function update() {
     balls.forEach(ball => {
@@ -86,16 +86,17 @@ function update() {
         Pebble.hit(ball, ba, true, false, true);
     });
     fps.content = "FPS: " + Pebble.frameData.FPS;
-}
+} //when called, this update function will run the physics for each ball, and update the fps counter
 
-Pebble.interpolationData.fps = 30;
+Pebble.interpolationData.fps = 30; //this sets the game to run at 30 fps. the game will be rendered a lot faster, but in short words, this means that you wont notice any lag unless the fps counter drops below 30
 
 function Animate(timestamp) {
-    requestAnimationFrame(Animate);
+    requestAnimationFrame(Animate); //this will start running the Animate function at the screen refresh rate
 
-    Pebble.render(canvas.domElement, stage, true, Pebble.getLagOffset(timestamp, update));
-    // update();
-    // Pebble.render(canvas, stage, false);
+    Pebble.render(canvas.domElement, stage, true, Pebble.getLagOffset(timestamp, update)); //this is the crown jewl of the program
+    // this function will render the stage onto the canvas, and then update the game logic (such as the physics and positioning of the balls)
+    // at 30 fps while compensating for lag
+    //so unless the fps of the rendering drops below 30, you wont notice a difference
 }
 
-Animate();
+Animate(); // this starts the Animate function

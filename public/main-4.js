@@ -1,54 +1,109 @@
-let canvas = new Pebble.Canvas(document.body, 400, 400, "1px solid black");
-let stage = new Pebble.Stage(canvas.width, canvas.height);
+let canvas = new Pebble.Canvas(document.body, 600, 600, "none", "url('images/SpaceBg.jpg')");
+let stage = new Pebble.Stage(canvas.width * 2, canvas.height);
 let assets = new Pebble.AssetLoader();
 let data = new Pebble.DataLoader();
 
 let animator;
 let pause = false;
 
-assets.load(["fonts/Lobster-Regular.ttf"]).then(() => setup());
+assets.load([
+    "fonts/Lobster-Regular.ttf",
+    "images/ship.png",
+    "images/shipfire.png",
+    "images/shipfire-1.png",
+]).then(() => setup());
 
-let tank, ball;
-let bullets = [];
+let ship, exhaust;
+let trailR, trailL;
 let pointer = Pebble.Pointer(canvas.domElement);
 
 Pebble.interpolationData.FPS = 60;
 
 function setup() {
-    let box = Pebble.Rectangle(32, 32, "gold", "goldenrod", 2);
-    let turret = Pebble.Line("goldenrod", 4, 0, 0, 32, 0);
-    turret.x = 16;
-    turret.y = 16;
-    tank = Pebble.Group();
-    tank.add(box, turret);
-    stage.putCenter(tank);
+    ship = Pebble.Sprite(assets["images/ship.png"]);
+    ship.width = 32;
+    ship.height = 24;
+    ship.pivotX = 0.5;
 
-    tank.vx = 0;
-    tank.vy = 0;
-    tank.accelerationX = 0.2;
-    tank.accelerationY = 0.2;
-    tank.frictionX = 0.96;
-    tank.frictionY = 0.96;
 
-    tank.rotationSpeed = 0;
-    tank.moveForward = false;
+    exhaust = Pebble.Sprite([
+        assets["images/shipfire.png"],
+        assets["images/shipfire-1.png"],
+    ]);
+    Pebble.addStatePlayer(exhaust);
+    exhaust.fps = 12;
+    exhaust.play();
+    exhaust.width = 32;
+    exhaust.height = 24;
+    exhaust.rotation = Math.PI * 2 - Math.PI / 2;
+    ship.putLeft(exhaust, 9, -4.5);
+    exhaust.visible = false;
+    ship.add(exhaust);
+
+    trailR = Pebble.Sprite([
+        assets["images/shipfire.png"]
+    ]);
+    trailR.width = 8;
+    t
+    trailR.height = 12;
+    trailR.rotation = Math.PI;
+    ship.putBottom(trailR, 10, -10);
+    trailR.visible = false;
+    ship.add(trailR);
+
+    trailL = Pebble.Sprite([
+        assets["images/shipfire-1.png"]
+    ]);
+    trailL.width = 8;
+    trailL.height = 12;
+    ship.putTop(trailL, 10, 10);
+    trailL.visible = false;
+    ship.add(trailL);
+
+    stage.putCenter(ship);
+
+    ship.vx = 0;
+    ship.vy = 0;
+    ship.accelerationX = 0.2;
+    ship.accelerationY = 0.2;
+    ship.frictionX = 0.999;
+    ship.frictionY = 0.999;
+    ship.mass = 5;
+
+    ship.rotationSpeed = 0;
+    ship.moveForward = false;
 
     let leftArrow = Pebble.Keyboard(37),
         rightArrow = Pebble.Keyboard(39),
-        upArrow = Pebble.Keyboard(38);
+        upArrow = Pebble.Keyboard(38),
+        downArrow = Pebble.Keyboard(40);
 
-    leftArrow.press = () => tank.rotationSpeed = -0.1;
+    leftArrow.press = () => {
+        ship.rotationSpeed = -0.1;
+        trailR.visible = true;
+    }
     leftArrow.release = () => {
-        if (!rightArrow.isDown) tank.rotationSpeed = 0;
+        if (!rightArrow.isDown) ship.rotationSpeed = 0;
+        trailR.visible = false;
     }
 
-    rightArrow.press = () => tank.rotationSpeed = 0.1;
+    rightArrow.press = () => {
+        ship.rotationSpeed = 0.1;
+        trailL.visible = true;
+    }
     rightArrow.release = () => {
-        if (!leftArrow.isDown) tank.rotationSpeed = 0;
+        if (!leftArrow.isDown) ship.rotationSpeed = 0;
+        trailL.visible = false;
     }
 
-    upArrow.press = () => tank.moveForward = true;
-    upArrow.release = () => tank.moveForward = false;
+    upArrow.press = () => {
+        ship.moveForward = true;
+        exhaust.visible = true;
+    }
+    upArrow.release = () => {
+        ship.moveForward = false;
+        exhaust.visible = false;
+    }
 
 
 
@@ -57,27 +112,22 @@ function setup() {
 }
 
 function update() {
-    tank.rotation += tank.rotationSpeed;
+    ship.rotation += ship.rotationSpeed;
 
-    if (tank.moveForward) {
-        tank.vx += tank.accelerationX * Math.cos(tank.rotation);
-        tank.vy += tank.accelerationY * Math.sin(tank.rotation);
-        if (Math.abs(tank.vx) > 5) tank.vx -= tank.accelerationX * Math.cos(tank.rotation);
-        if (Math.abs(tank.vy) > 5) tank.vy -= tank.accelerationY * Math.sin(tank.rotation);
+    if (ship.moveForward) {
+        ship.vx += ship.accelerationX * Math.cos(ship.rotation);
+        ship.vy += ship.accelerationY * Math.sin(ship.rotation);
     } else {
-        tank.vx *= tank.frictionX;
-        tank.vy *= tank.frictionY;
+        ship.vx *= ship.frictionX;
+        ship.vy *= ship.frictionY;
     }
 
-    tank.x += tank.vx;
-    tank.y += tank.vy;
+    ship.x += ship.vx;
+    ship.y += ship.vy;
 
-    Pebble.contain(tank, stage.localBounds, false);
+    Pebble.contain(ship, stage.localBounds, true);
 
-    bullets.forEach(bullet => {
-        bullet.x += bullet.vx;
-        bullet.y += bullet.vy;
-    });
+
 
 }
 
