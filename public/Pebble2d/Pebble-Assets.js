@@ -1,9 +1,6 @@
 if (typeof(Pebble) === "undefined" || Pebble === null) {
     var Pebble;
     Pebble = class {
-        static info() {
-            return `visit www.slidemations.com for info on the Pebble API`;
-        }
         static randomInt(min = 0, max = 10) {
             return Math.floor(Math.random() * (max - min) + min);
         }
@@ -24,6 +21,7 @@ Pebble.AssetLoader = class {
         this.fontExtensions = ["ttf", "otf", "ttc", "woff"];
         this.jsonExtensions = ["json"];
         this.audioExtensions = ["mp3", "ogg", "wav", "webm"];
+        this.scriptExtensions = ["js"];
     }
     load(sources, verbose = false) {
 
@@ -81,6 +79,8 @@ Pebble.AssetLoader = class {
                 //Load audio files  
                 else if (this.audioExtensions.indexOf(extension) !== -1) {
                     this.loadSound(source, loadHandler);
+                } else if (this.scriptExtensions.indexOf(extension) !== -1) {
+                    this.loadScript(source, loadHandler);
                 }
                 //Display a message if a file type isn't recognized
                 else {
@@ -107,6 +107,22 @@ Pebble.AssetLoader = class {
 
         //Set the image's `src` property to start loading the image
         image.src = source;
+    }
+    loadScript(source, loadHandler) {
+        let script = document.createElement("script");
+        script.src = source;
+        script.type = "text/javascript";
+
+        let obj = {
+            script: script,
+            execute() {
+                document.head.appendChild(this.script);
+            }
+        };
+
+        this[source] = obj;
+
+        loadHandler();
     }
     loadFont(source, loadHandler) {
         //Use the font's file name as the `fontFamily` name

@@ -679,38 +679,43 @@ Pebble.buttons = [];
 
 Pebble.Rectangle = function(width = 32, height = 32, fillStyle = "gray", strokeStyle = "none", lineWidth = 0, x = 0, y = 0) {
     let sprite = new RectangleCanvasObject(width, height, fillStyle, strokeStyle, lineWidth, x, y);
-    stage.addChild(sprite);
+    if (stage) stage.addChild(sprite);
     return sprite;
 }
 Pebble.Circle = function(diameter = 32, fillStyle = "gray", strokeStyle = "none", lineWidth = 0, x = 0, y = 0) {
     let sprite = new CircleCanvasObject(diameter, fillStyle, strokeStyle, lineWidth, x, y);
-    stage.addChild(sprite);
+    if (stage) stage.addChild(sprite);
     return sprite;
 }
-Pebble.Line = function(strokeStyle = "none", lineWidth = 0, ax = 0, ay = 0, bx = 0, by = 0) {
+Pebble.Line = function(ax = 0, ay = 0, bx = 0, by = 0, strokeStyle = "none", lineWidth = 1, ) {
     let sprite = new LineCanvasObject(strokeStyle, lineWidth, ax, ay, bx, by);
-    stage.addChild(sprite);
+    if (stage) stage.addChild(sprite);
     return sprite;
 }
 Pebble.Text = function(content = "", font = "12px sans-serif", fillStyle = "black", x = 0, y = 0) {
     let sprite = new TextCanvasObject(content, font, fillStyle, x, y);
-    stage.addChild(sprite);
+    if (stage) stage.addChild(sprite);
     return sprite;
 }
 Pebble.Group = function(...spritesToGroup) {
     let sprite = new ObjectGrouper(spritesToGroup);
-    stage.addChild(sprite);
+    if (stage) stage.addChild(sprite);
     return sprite;
 }
 Pebble.Sprite = function(source, x = 0, y = 0) {
     let sprite = new SpriteCanvasObject(source, x, y);
     if (sprite.frames.length > 0) Pebble.addStatePlayer(sprite);
-    stage.addChild(sprite);
+    if (stage) stage.addChild(sprite);
     return sprite;
 }
 Pebble.Button = function(source, x, y) {
     let sprite = new ButtonObject(source, x, y);
-    stage.addChild(sprite);
+    if (stage) stage.addChild(sprite);
+    return sprite;
+}
+Pebble.Marker = function(x = 0, y = 0) {
+    let sprite = new MarkerCanvasObject(x, y);
+    if (stage) stage.addChild(sprite);
     return sprite;
 }
 
@@ -750,6 +755,17 @@ class RectangleCanvasObject extends Pebble.DisplayObject {
         if (this.strokeStyle !== "none") ctx.stroke();
         if (this.fillStyle !== "none") ctx.fill();
         if (this.mask && this.mask === true) ctx.clip();
+    }
+}
+
+class MarkerCanvasObject extends Pebble.DisplayObject {
+    constructor(
+        x = 0,
+        y = 0,
+    ) {
+        super();
+
+        Object.assign(this, { x, y });
     }
 }
 
