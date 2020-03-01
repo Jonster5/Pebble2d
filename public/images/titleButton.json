@@ -1,75 +1,75 @@
 {
-	"frames": {
-		"Circlez_title.png": {
-			"frame": {
-				"x": 2,
-				"y": 2,
-				"w": 200,
-				"h": 100
-			},
-			"rotated": false,
-			"trimmed": false,
-			"spriteSourceSize": {
-				"x": 0,
-				"y": 0,
-				"w": 200,
-				"h": 100
-			},
-			"sourceSize": {
-				"w": 200,
-				"h": 100
-			}
-		},
-		"Circlez_title1.png": {
-			"frame": {
-				"x": 2,
-				"y": 106,
-				"w": 200,
-				"h": 100
-			},
-			"rotated": false,
-			"trimmed": false,
-			"spriteSourceSize": {
-				"x": 0,
-				"y": 0,
-				"w": 200,
-				"h": 100
-			},
-			"sourceSize": {
-				"w": 200,
-				"h": 100
-			}
-		},
-		"Circlez_title2.png": {
-			"frame": {
-				"x": 206,
-				"y": 2,
-				"w": 200,
-				"h": 100
-			},
-			"rotated": false,
-			"trimmed": false,
-			"spriteSourceSize": {
-				"x": 0,
-				"y": 0,
-				"w": 200,
-				"h": 100
-			},
-			"sourceSize": {
-				"w": 200,
-				"h": 100
-			}
-		}
-	},
-	"meta": {
-		"app": "http://www.codeandweb.com/texturepacker",
-		"version": "1.0",
-		"image": "spritesheet.png",
-		"format": "RGBA8888",
-		"size": {
-			"w": 408,
-			"h": 208
-		},
-		"scale": "1"
-	}
+    "frames": {
+        "Circlez_title.png": {
+            "frame": {
+                "x": 2,
+                "y": 2,
+                "w": 200,
+                "h": 100
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 200,
+                "h": 100
+            },
+            "sourceSize": {
+                "w": 200,
+                "h": 100
+            }
+        },
+        "Circlez_title1.png": {
+            "frame": {
+                "x": 2,
+                "y": 106,
+                "w": 200,
+                "h": 100
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 200,
+                "h": 100
+            },
+            "sourceSize": {
+                "w": 200,
+                "h": 100
+            }
+        },
+        "Circlez_title2.png": {
+            "frame": {
+                "x": 206,
+                "y": 2,
+                "w": 200,
+                "h": 100
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 200,
+                "h": 100
+            },
+            "sourceSize": {
+                "w": 200,
+                "h": 100
+            }
+        }
+    },
+    "meta": {
+        "app": "http://www.codeandweb.com/texturepacker",
+        "version": "1.0",
+        "image": "titlebutton.png",
+        "format": "RGBA8888",
+        "size": {
+            "w": 408,
+            "h": 208
+        },
+        "scale": "1"
+    }
 }

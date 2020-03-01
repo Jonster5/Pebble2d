@@ -25,10 +25,7 @@ let leftArrow = Pebble.Keyboard(37),
     spaceKey = Pebble.Keyboard(32);
 
 function setup() {
-
     assets["ship.js"].execute();
-
-
 
     leftArrow.press = () => {
         ship.rotationSpeed = -0.1;
