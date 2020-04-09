@@ -840,6 +840,40 @@ class TextCanvasObject extends Pebble.DisplayObject {
         this.textBaseline = "top";
 
         this.strokeText = "none";
+
+        if (this.width === 0) {
+            let c = new Pebble.Canvas();
+            c.domElement.style.display = "none";
+            c.domElement.style.position = "absolute";
+            let ctx = c.ctx
+
+            ctx.font = this.font;
+            ctx.strokeStyle = this.strokeStyle;
+            ctx.lineWidth = this.lineWidth;
+            ctx.fillStyle = this.fillStyle;
+
+            this.width = ctx.measureText(this.content).width;
+
+            document.body.removeChild(c.domElement);
+        }
+
+        if (this.height === 0) {
+            let c = new Pebble.Canvas();
+            c.domElement.style.display = "none";
+            c.domElement.style.position = "absolute";
+            let ctx = c.ctx
+
+            ctx.font = this.font;
+            ctx.strokeStyle = this.strokeStyle;
+            ctx.lineWidth = this.lineWidth;
+            ctx.fillStyle = this.fillStyle;
+
+            this.height = ctx.measureText("M").width;
+
+            document.body.removeChild(c.domElement);
+        }
+
+
     }
     render(ctx) {
         ctx.font = this.font;
@@ -847,8 +881,8 @@ class TextCanvasObject extends Pebble.DisplayObject {
         ctx.lineWidth = this.lineWidth;
         ctx.fillStyle = this.fillStyle;
 
-        if (this.width === 0) this.width = ctx.measureText(this.content).width;
-        if (this.height === 0) this.height = ctx.measureText("M").width;
+        this.width = ctx.measureText(this.content).width;
+        this.height = ctx.measureText("M").width;
 
         ctx.translate(-this.width * this.pivotX, -this.height * this.pivotY);
         ctx.textBaseline = this.textBaseline;
@@ -1262,6 +1296,7 @@ Pebble.addStatePlayer = function(sprite) {
     sprite.show = show;
     sprite.play = play;
     sprite.stop = stop;
+
     //sprite.playing = playing;
     sprite.playSequence = playSequence;
 }
@@ -1389,4 +1424,10 @@ function makeInteractive(o) {
             }
         }
     };
+}
+
+Pebble.VoxelGrid = class {
+    constructor() {
+
+    }
 }

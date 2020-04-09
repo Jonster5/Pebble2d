@@ -16,9 +16,7 @@ if (typeof(Pebble) === "undefined" || Pebble === null) {
     }
 }
 
-
-
-Pebble.Keyboard = function(keyCode, eventObj = window) {
+Pebble.Keyboard = function(keyCode = 0, eventObj = window) {
     let key = {};
     key.eObj = eventObj;
     key.code = keyCode;

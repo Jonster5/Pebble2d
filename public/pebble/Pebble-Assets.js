@@ -12,6 +12,7 @@ if (typeof(Pebble) === "undefined" || Pebble === null) {
         }
     }
 }
+
 Pebble.AssetLoader = class {
     constructor() {
         this.toLoad = 0;
@@ -21,9 +22,9 @@ Pebble.AssetLoader = class {
         this.fontExtensions = ["ttf", "otf", "ttc", "woff"];
         this.jsonExtensions = ["json"];
         this.audioExtensions = ["mp3", "ogg", "wav", "webm"];
-        this.scriptExtensions = ["js"];
+        this.scriptExtensions = ["pbl", "js"];
     }
-    load(sources, verbose = false) {
+    load(sources = [], verbose = false) {
 
         //The `load` method will return a Promise when everything has
         //loaded
@@ -109,20 +110,35 @@ Pebble.AssetLoader = class {
         image.src = source;
     }
     loadScript(source, loadHandler) {
-        let script = document.createElement("script");
-        script.src = source;
-        script.type = "text/javascript";
+        let xhr = new XMLHttpRequest();
 
-        let obj = {
-            script: script,
-            execute() {
-                document.head.appendChild(this.script);
+        xhr.open("GET", source, true);
+
+        xhr.responseType = "text";
+
+        xhr.onload = event => {
+            if (xhr.status === 200) {
+
+
+                let obj = {
+                    source: xhr.responseText,
+                    execute() {
+                        return new Promise(res => {
+                            let script = document.createElement("script");
+
+                            script.innerHTML = this.source;
+
+                            document.body.appendChild(script);
+                            res();
+                        });
+                    }
+                }
+                this[source] = obj;
+
+                loadHandler();
             }
         };
-
-        this[source] = obj;
-
-        loadHandler();
+        xhr.send();
     }
     loadFont(source, loadHandler) {
         //Use the font's file name as the `fontFamily` name

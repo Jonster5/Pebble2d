@@ -3,21 +3,69 @@ if (typeof Pebble.DisplayObject === 'undefined' || Pebble.DisplayObject === null
 }
 
 Pebble.World = class {
-    constructor(gameObjects = {}) {
+    constructor(stage) {
         this.scenes = [];
         this.currentScene = 0;
-        Object.assign(this, gameObjects);
+        this.stage = stage;
+
+        class CustomGrouper extends Pebble.DisplayObject {
+            constructor(width, height) {
+                super();
+                this.width = width;
+                this.height = height;
+            }
+
+            addChild(sprite) {
+                if (sprite.parent) {
+                    sprite.parent.removeChild(sprite);
+                }
+                sprite.parent = this;
+                this.children.push(sprite);
+            }
+
+            removeChild(sprite) {
+                if (sprite.parent === this) {
+                    this.children.splice(this.children.indexOf(sprite), 1);
+
+                } else {
+                    throw new Error(`${sprite} is not a child of ${this}`);
+                }
+            }
+            add(...sta) {
+                sta.forEach(sprite => {
+                    this.addChild(sprite);
+                });
+            }
+            remove(...sta) {
+                sta.forEach(sprite => {
+                    this.removeChild(sprite);
+                });
+            }
+            addArray(sta) {
+                sta.forEach(sprite => {
+                    this.addChild(sprite);
+                });
+            }
+            removeArray(...sta) {
+                sta.forEach(sprite => {
+                    this.removeChild(sprite);
+                });
+            }
+        }
+
+        this.cGroup = CustomGrouper;
     }
-    addNewScene(setup = function(world) {}, onUpdate = function(world) {}) {
+
+    addNewScene(setup = function(world, scene, group) {}, onUpdate = function(world, scene, group) {}) {
         let obj = {
-            group: Pebble.Group(),
+            group: new this.cGroup(this.stage.width, this.stage.height),
 
-            prepare: undefined,
-            update: undefined,
+            prepare: () => setup(this, obj.objects, obj.group),
+            update: () => onUpdate(this, obj.objects, obj.group),
+
+            objects: {},
         };
-
-        obj.prepare = setup.bind(obj, world);
-        obj.update = onUpdate.bind(obj, world);
+        if (!obj.group.parent) this.stage.add(obj.group);
 
         this.scenes.push(obj);
         obj.group.visible = this.scenes.indexOf(obj) === 0 ? true : false;
@@ -25,7 +73,6 @@ Pebble.World = class {
             obj.prepare();
         }
     }
-
     nextScene() {
         if (this.currentScene < this.scenes.length - 1) {
             this.scenes[this.currentScene].group.visible = false;

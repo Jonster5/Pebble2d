@@ -11,7 +11,7 @@ assets.load([
     "images/ship.png",
     "images/shipfire.png",
     "images/shipfire-1.png",
-    "ship.js"
+    "ship.js",
 ], true).then(() => setup());
 
 let pointer = Pebble.Pointer(canvas.domElement);

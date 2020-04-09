@@ -3,65 +3,6 @@ Pebble.DataLoader = class {
         this.databases = [];
         this.openDatabases = [];
 
-        this.dataHandler = {
-            createNode(name = "", val) {
-                if (this.storage.length > 0) {
-                    this.storage.forEach(node => {
-                        if (name === node.name) throw new Error("This name has already been taken");
-                    });
-                }
-                let node = {
-                    name: name,
-                    value: val,
-                    type: typeof(val)
-                };
-                this.storage.push(node);
-                return true;
-            },
-            removeNode(name) {
-                let node = this.storage.find(x => x.name === name);
-                let index = this.storage.indexOf(node);
-                this.storage.splice(index, 1);
-                return true;
-            },
-            updateNode(name = "", val) {
-                if (this.storage.length > 0) {
-                    try {
-                        this.storage.forEach(node => {
-                            if (node.name === name && node.type === typeof(val)) {
-                                node.value = val;
-                            } else if (node.name === undefined) {
-                                throw new Error();
-                            }
-                        });
-                    } catch (error) {
-                        throw new Error(`Node ${name} either doesn't exist, or the value you tried to update is not of the same type`);
-                    }
-                }
-            },
-            getNode(name = "") {
-                if (this.storage.length > 0) {
-                    try {
-                        this.storage.forEach(node => {
-                            if (node.name === name) {
-                                return {
-                                    value: node.value,
-                                    type: node.type
-                                };
-                            }
-                        });
-                    } catch (error) {
-                        throw new Error(`Node ${name} either doesn't exist`);
-                    }
-                }
-            },
-            removeAll() {
-
-            },
-            getAll() {}
-        };
-
-
         if (window.localStorage.length > 0) {
             for (let i = 0; i < window.localStorage.length; i++) {
                 let key = window.localStorage.key(i);
@@ -112,14 +53,73 @@ Pebble.DataLoader = class {
             let db = JSON.parse(window.localStorage.getItem(database));
             this.openDatabases.push(db);
             let index = this.openDatabases.indexOf(db);
-            Object.assign(this.openDatabases[index].db, this.dataHandler);
+            Object.assign(this.openDatabases[index].db, {
+                createNode(name = "", val) {
+
+                    if (this.storage.length > 0) {
+                        this.storage.forEach(node => {
+                            if (name === node.name) throw new Error("This name has already been taken");
+                        });
+                    }
+                    let node = {
+                        name: name,
+                        value: val,
+                        type: typeof(val)
+                    };
+
+                    this.storage.push(node);
+                    return true;
+                },
+                removeNode(name) {
+                    let node = this.storage.find(x => x.name === name);
+                    let index = this.storage.indexOf(node);
+                    this.storage.splice(index, 1);
+                    return true;
+                },
+                updateNode(name = "", val) {
+                    if (this.storage.length > 0) {
+                        try {
+                            this.storage.forEach(node => {
+                                if (node.name === name && node.type === typeof(val)) {
+                                    node.value = val;
+                                } else if (node.name === undefined) {
+                                    throw new Error();
+                                }
+                            });
+                        } catch (error) {
+                            throw new Error(`Node ${name} either doesn't exist, or the value you tried to update is not of the same type`);
+                        }
+                    }
+                },
+                getNode(name = "") {
+                    console.log(this.storage);
+                    for (let node of this.storage) {
+                        if (node.name === name) return node.value;
+                    }
+                    return false;
+                },
+                removeAll() {
+
+                },
+                getAll() {}
+            });
             if (callback) {
                 callback(this.openDatabases[index].db);
             }
             return true;
         } catch (err) {
+            this.openDatabases.pop();
             return false;
         }
+    }
+    checkDB(name = "") {
+        if (this.open(name)) {
+            this.close(name);
+            return true;
+        } else {
+            return false;
+        }
+
     }
     close(database = "") {
         let db = this.openDatabases.find(x => x.id === database);
