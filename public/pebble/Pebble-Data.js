@@ -1,4 +1,4 @@
-Pebble.DataLoader = class {
+Pebble.Storage = class {
     constructor() {
         this.databases = [];
         this.openDatabases = [];

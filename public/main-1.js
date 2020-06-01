@@ -1,6 +1,8 @@
-let canvas = new Pebble.Canvas(document.body, 600, 600); //this creates the canvas where everything is drawn
+let canvas = new Pebble.Canvas(document.body, 400, 200, "none"); //this creates the canvas where everything is drawn
 let stage = new Pebble.Stage(canvas.width, canvas.height); //this creates the parent object that everything is based on. sorta like the origin in a graph
-let assets = new Pebble.AssetLoader(); //this is a utility that i made which can load shit like images and sounds
+let assets = new Pebble.AssetLoader(); //this is a utility that i made which can load shit like images and soundsS
+
+
 
 let colors = [
     "#FFABAB", "#FFDAAB", "#DDFFAB", "#ABE4FF", "#D9ABFF"
@@ -14,6 +16,12 @@ space.press = () => {
 
 let pointer = Pebble.Pointer(); //this creates a new pointer, which is what your mouse controls
 pointer.press = () => createBall(pointer.x, pointer.y); //this will say what to do when the pointer is pressed
+
+canvas.scaleToWindow("grey", pointer);
+
+window.addEventListener("resize", event => {
+    canvas.scaleToWindow("grey", pointer);
+});
 
 let fps = Pebble.Text("FPS: ", "12px sans-serif", "black", 16, 16); //this is the FPS counter in the top right
 stage.add(fps); //this adds to fps counter to the stage so it can be rendered

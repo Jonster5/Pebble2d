@@ -1,5 +1,5 @@
 if (typeof Pebble.DisplayObject === 'undefined' || Pebble.DisplayObject === null) {
-    throw new Error('You must have Pebble-2d installed before you can use this');
+    throw new Error('You must execute Pebble-2d.js before you can use this');
 }
 
 Pebble.World = class {

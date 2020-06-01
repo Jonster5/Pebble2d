@@ -19,12 +19,12 @@ if (typeof(Pebble) === "undefined" || Pebble === null) {
 Pebble.draggable = [];
 
 Pebble.DisplayObject = class {
-    constructor(width = 0, height = 0) {
+    constructor() {
         //The sprite's position and size
         this.x = 0;
         this.y = 0;
-        this.width = width;
-        this.height = height;
+        this.width = 0;
+        this.height = 0;
 
         //Rotation, alpha, visible and scale properties
         this.rotation = 0;
@@ -405,7 +405,6 @@ Pebble.Canvas = class {
         height = 400,
         border = "1px dashed black",
         background = "white",
-        id = ""
     ) {
         let canvas = document.createElement('canvas');
 
@@ -425,12 +424,53 @@ Pebble.Canvas = class {
 
         canvas.setAttribute("style", `width: ${width}px; height: ${height}px; border: ${border}; background: ${background};`);
 
-
         let obj = {
             width: width,
             height: height,
+            scale: 0,
             ctx: canvas.ctx,
             domElement: canvas,
+            parent: domElement,
+            aspect: { x: width, y: height },
+            scaleToWindow(bgcolor = "grey", pointer) {
+                let scaleX, scaleY, scale;
+
+                scaleX = window.innerWidth / this.width;
+                scaleY = window.innerHeight / this.height;
+
+
+                scale = Math.min(scaleX, scaleY);
+                this.domElement.style.transformOrigin = "0 0";
+                this.domElement.style.transform = "scale(" + scale + ")";
+
+
+                if (parseFloat(this.domElement.style.width) > parseFloat(this.domElement.style.height)) {
+
+                    let margin = (window.innerHeight - parseFloat(this.domElement.style.height) * scaleX) / 2;
+
+                    this.domElement.style.marginTop = margin + "px";
+                    this.domElement.style.marginBottom = margin + "px";
+                } else {
+
+                    let margin = (window.innerWidth - parseFloat(this.domElement.style.width) * scaleY) / 2;
+
+                    this.domElement.style.marginLeft = margin + "px";
+                    this.domElement.style.marginRight = margin + "px";
+                }
+
+                this.domElement.style.paddingLeft = 0;
+                this.domElement.style.paddingRight = 0;
+                this.domElement.style.display = "block";
+
+                this.parent.style.backgroundColor = bgcolor;
+
+                pointer.scale = scale;
+                this.scale = scale;
+
+            },
+            cancelReaction() {
+                window.removeEventListener("resize");
+            },
             exportAsPNG(fileName = "") {
                 try {
                     let canvasElement = this.domElement;
@@ -479,8 +519,13 @@ Pebble.Canvas = class {
     }
 }
 
-Pebble.Stage = Pebble.DisplayObject;
-
+Pebble.Stage = class extends Pebble.DisplayObject {
+    constructor(width = 0, height = 0) {
+        super();
+        this.width = width;
+        this.height = height;
+    }
+}
 Pebble.render = function(canvas, stage, interpolated = false, lagOffset) {
     let ctx = canvas.ctx;
 
@@ -620,7 +665,7 @@ Pebble.frameData = {
     FPS: 0
 }
 
-function refreshLoop() {
+Pebble.refreshLoop = function() {
     window.requestAnimationFrame(() => {
         const now = performance.now();
         while (Pebble.frameData.times.length > 0 && Pebble.frameData.times[0] <= now - 1000) {
@@ -628,10 +673,9 @@ function refreshLoop() {
         }
         Pebble.frameData.times.push(now);
         Pebble.frameData.FPS = Pebble.frameData.times.length;
-        refreshLoop();
+        this.refreshLoop();
     });
 }
-refreshLoop();
 
 Pebble.getLagOffset = function(timestamp, func) {
     let fps = this.interpolationData._fps;

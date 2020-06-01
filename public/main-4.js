@@ -1,7 +1,7 @@
 let canvas = new Pebble.Canvas(document.body, window.innerWidth, window.innerHeight, "none", "url('images/SpaceBg.jpg')");
 let stage = new Pebble.Stage(canvas.width, canvas.height);
 let assets = new Pebble.AssetLoader();
-let data = new Pebble.DataLoader();
+let data = new Pebble.Storage();
 
 let animator;
 let pause = false;

@@ -21,7 +21,7 @@ Pebble.interpolationData.FPS = 30;
 
 function setup() {
     pointer = Pebble.Pointer(canvas.domElement);
-    world = new World({
+    world = new Pebble.World({
         dungeon: Pebble.Sprite(assets["dungeon.png"]),
         exit: Pebble.Sprite([
             assets["door.png"],
